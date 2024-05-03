@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const MenuListButtonComponent = ({ toggleModal }) => {
+const MenuListButtonComponent = ({ toggleModal, visible }) => {
   return (
     <View style={styles.menu}>
       {['Freie Route', 'Manuell Route eingeben', 'Filter Route', 'Schnelle Route'].map((item, index) => (
