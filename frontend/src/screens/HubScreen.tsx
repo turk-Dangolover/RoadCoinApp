@@ -2,11 +2,13 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Test from '../components/Test';
 
 const HubScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Dies ist der Hub-Bildschirm</Text>
+      <Test />
     </View>
   );
 };
