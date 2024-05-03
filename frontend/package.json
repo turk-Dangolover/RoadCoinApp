@@ -9,11 +9,14 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@react-navigation/stack": "^6.3.29",
+    "@expo-google-fonts/montserrat": "^0.2.3",
     "@expo/vector-icons": "^13.0.0",
+    "@react-navigation/stack": "^6.3.29",
     "color": "^4.2.3",
     "dotenv": "^16.4.5",
     "expo": "^49.0.23",
+    "expo-app-loading": "^2.1.1",
+    "expo-font": "~11.4.0",
     "expo-location": "~16.1.0",
     "expo-status-bar": "~1.6.0",
     "react": "18.2.0",

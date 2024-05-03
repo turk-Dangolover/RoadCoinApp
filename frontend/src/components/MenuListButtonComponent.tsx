@@ -1,38 +1,51 @@
 // MenuListButtonComponent.js
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const MenuListButtonComponent = ({ toggleModal, visible }) => {
+const MenuListButtonComponent = ({ name }) => {
   return (
-    <View style={styles.menu}>
-      {['Freie Route', 'Manuell Route eingeben', 'Filter Route', 'Schnelle Route'].map((item, index) => (
-        <TouchableOpacity key={index} style={styles.menuItem} onPress={toggleModal}>
-          <Text>{item}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
+    <View style={styles.container}>
+    <TouchableOpacity style={styles.button}>
+        <MaterialCommunityIcons name="map" size={30} color="black" />
+        <Text style={styles.buttonText}>{name}</Text>
+      </TouchableOpacity>
+      {/* Einen grauen dünne Strich zur abgrenzung der ganz unten ist */}
+      <View style={{borderBottomColor: 'grey', borderBottomWidth: 1, width: '100%' }} />  
+     </View>	
   );
 };
 
 const styles = StyleSheet.create({
-  menu: {
-    backgroundColor: 'white',
-    padding: 22,
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    // Weitere Styling-Optionen
-  },
-  menuItem: {
-    fontSize: 16,
+  container: {
+    width: '100%',
+    height: '25%',
+    bottom: 10,
+    alignSelf: 'center',
+    backgroundColor: '#FAF9F6',
+    borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    color: 'blue',
-    // Weitere Styling-Optionen
+    elevation: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-});
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start', // Änderung hier
+    width: '100%', 
+    height: '100%',
+    paddingLeft: 20, // Fügen Sie etwas Abstand links hinzu, damit es nicht direkt am Rand ist.
+  },
 
+  buttonText: {
+    color: 'black',
+    fontSize: 25,
+    marginRight: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+  }
+});
 export default MenuListButtonComponent;

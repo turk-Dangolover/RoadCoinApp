@@ -5,9 +5,10 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
+import MenuListButtonComponent from './MenuListButtonComponent';
 
 const RouteConfigButtonComponent = () => {
-  const height = useSharedValue(100);  // Default height
+  const height = useSharedValue(80);  // Default height
   const open = useSharedValue(false);  // Default state
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -18,14 +19,22 @@ const RouteConfigButtonComponent = () => {
 
   const contentStyle = useAnimatedStyle(() => {
     return {
-      opacity: open.value ? 1 : 0,  // Steuern der Opazität basierend auf der Höhe
+      opacity: open.value ? 1 : 0,
+      display: open.value ? 'flex' : 'none',
+      transform: [{ scale: open.value ? 1 : 0.5 }], // Skaliert das Element von 0.5 bis 1
     };
   });
+  
 
   const handlePress = () => {
-    height.value = withSpring(!open.value ? 450 : 100);  // Toggle between two heights
-    open.value = !open.value;  // Toggle between open and closed state
+    height.value = withSpring(!open.value ? 450 : 80, {
+      damping: 15,
+      stiffness: 150
+    });
+
+    open.value = !open.value;
   };
+  
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
@@ -34,9 +43,10 @@ const RouteConfigButtonComponent = () => {
       </TouchableOpacity>
       <Animated.View style={[styles.content, contentStyle]}>
         {/* Additional content that becomes visible as the panel expands */}
-        <Text style={styles.moreText}>Option 1</Text>
-        <Text style={styles.moreText}>Option 2</Text>
-        <Text style={styles.moreText}>Option 3</Text>
+        <MenuListButtonComponent name="Freie Route" />
+        <MenuListButtonComponent name="Manuell Route eingeben" />
+        <MenuListButtonComponent name="Filter Route" />
+        <MenuListButtonComponent name="Schnelle Route" />
       </Animated.View>
     </Animated.View>
   );
@@ -44,11 +54,11 @@ const RouteConfigButtonComponent = () => {
 
 const styles = StyleSheet.create({
   container: {
-    width: 600,
+    width: "85%",
     position: 'absolute',
     bottom: 30,
     alignSelf: 'center',
-    backgroundColor: '#3998E8',
+    backgroundColor: '#FAF9F6',
     borderRadius: 30,
     padding: 10,
     elevation: 5,
@@ -61,15 +71,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
+    fontSize: 32,
     paddingLeft: 10,
   },
   content: {
+    width: '103%',
+    height: '97%',
+    padding: 5,
+    borderRadius: 30,
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  moreText: {
-    color: 'white',
   },
 });
 
