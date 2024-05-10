@@ -6,6 +6,8 @@ import { fetchRandomRoute2 } from '../services/routeService';
 import MenuOverlayComponent from "../components/MenuOverlayComponent";
 import RouteConfigButtonComponent from "../components/RouteConfigButtonComponent";
 import Test from "../components/Test";
+import GooglePlacesInput from '../components/GooglePlacesInputComponent';
+import GooglePlacesInputComponent from '../components/GooglePlacesInputComponent';
 
 const MapScreen = () => {
   const [route, setRoute] = useState([]);
@@ -37,11 +39,16 @@ const MapScreen = () => {
     setMenuVisible(!isMenuVisible);
   }
 
+  const handleLocationSelect = (location) => {
+    console.log('Ausgewählter Standort:', location);
+  };
+  
+
   return (
     <View style={styles.container}>
       <MapViewComponent route={route} />
+      <GooglePlacesInputComponent onLocationSelect={handleLocationSelect} />
       <RouteConfigButtonComponent />
-      {/* <MenuOverlayComponent isVisible={animationController} /> */}
     </View>
   );
 
