@@ -9,7 +9,22 @@ import { calcRouteUsingCoords } from '../services/routeService';
 const MapScreen = () => {
   const [route, setRoute] = useState([]);
   const [startLocation, setStartLocation] = useState(null);
-  const [destinationLocation, setDestinationLocation] = useState(null); 
+  const [destinationLocation, setDestinationLocation] = useState(null);
+
+  const [routeConfig, setRouteConfig] = useState({
+    ManuelleRoute: false,
+    FilterRoute: false,
+    SchnelleRoute: false,
+    FreieRoute: false
+  });
+
+  const toggleVisibility = (key) => {
+    setRouteConfig(prevState => ({ ...prevState, [key]: !prevState[key] }));
+  };
+
+  const isAnyRouteActive = routeConfig => {
+    return Object.values(routeConfig).some(visible => visible);
+  };
 
   useEffect(() => {
     const getRoute = async () => {
@@ -35,14 +50,21 @@ const MapScreen = () => {
     console.log('Ziel Standort:', location);
     setDestinationLocation(location);
   };
-  
+
   return (
     <View style={styles.container}>
       <MapViewComponent route={route} />
-      {/* GooglePlacesInputComponent muss eine Layer über SearchBarDestinationComponent */}
-      <GooglePlacesInputComponent onLocationSelect={handleLocationSelect} />
-      <SearchBarDestinationComponent onLocationSelect={handleLocationSelect2} />
-      <RouteConfigButtonComponent />
+      {/* Wenn ManuelleRoute angeklickt wird, wird es erst sichtbar */}
+      {routeConfig.ManuelleRoute && (
+        <>
+          <GooglePlacesInputComponent onLocationSelect={handleLocationSelect} />
+          <SearchBarDestinationComponent onLocationSelect={handleLocationSelect2} />
+        </>
+      )}
+      {/* Wird unsichtbar, wenn was ausgewählt wird */}
+      {!isAnyRouteActive(routeConfig) && (
+      <RouteConfigButtonComponent routeConfig={routeConfig} toggleVisibility={toggleVisibility} />
+    )}
     </View>
   );
 

@@ -1,4 +1,6 @@
 import * as Location from 'expo-location';
+import polyline from '@mapbox/polyline';
+
 
 const calcRouteUsingCoords = async (originPlaceId, destinationPlaceId) => {
     const apiKey = process.env.GOOGLE_MAPS_KEY;
@@ -14,20 +16,35 @@ const calcRouteUsingCoords = async (originPlaceId, destinationPlaceId) => {
         }
 
         const route = data.routes[0];
-        const coordinates = [];
-        route.legs.forEach(leg => {
-            leg.steps.forEach(step => {
-                coordinates.push({ latitude: step.start_location.lat, longitude: step.start_location.lng });
-                coordinates.push({ latitude: step.end_location.lat, longitude: step.end_location.lng });
-            });
-        });
+        const points = polyline.decode(route.overview_polyline.points); // Polyline für die gesamte Route
+        const smoothCoordinates = smoothRoute(points);
 
-        return coordinates;
+        return smoothCoordinates;
     } catch (error) {
         console.error("Fehler bei der Routenberechnung: ", error);
         return [];
     }
 };
+
+const smoothRoute = (points) => {
+    const smoothed = [];
+    for (let i = 0; i < points.length - 1; i++) {
+      const current = { latitude: points[i][0], longitude: points[i][1] };
+      const next = { latitude: points[i + 1][0], longitude: points[i + 1][1] };
+      smoothed.push(current);
+      // Erstellen Sie Zwischenpunkte
+      for (let j = 1; j <= 10; j++) {
+        const interpolated = {
+          latitude: current.latitude + (next.latitude - current.latitude) * j / 10,
+          longitude: current.longitude + (next.longitude - current.longitude) * j / 10,
+        };
+        smoothed.push(interpolated);
+      }
+    }
+    smoothed.push({ latitude: points[points.length - 1][0], longitude: points[points.length - 1][1] });
+    return smoothed;
+};
+
 
 
 const getCurrentLocation = async () => {

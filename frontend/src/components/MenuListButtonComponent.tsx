@@ -3,10 +3,10 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const MenuListButtonComponent = ({ name }) => {
+const MenuListButtonComponent = ({ name, onPress }) => {
   return (
     <View style={styles.container}>
-    <TouchableOpacity style={styles.button}>
+    <TouchableOpacity style={styles.button} onPress={onPress}>
         <MaterialCommunityIcons name="map" size={30} color="black" />
         <Text style={styles.buttonText}>{name}</Text>
       </TouchableOpacity>
