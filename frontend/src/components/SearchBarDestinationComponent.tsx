@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { getCurrentLocation } from '../services/routeService';  // Updated path
 import { StyleSheet, View } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';  // Vergewissern Sie sich, dass das Paket installiert ist
 
-const GooglePlacesInputComponent = ({ onLocationSelect }) => {
+const SearchBarDestinationComponent = ({ onLocationSelect }) => {
   const [location, setLocation] = useState(null);
   const [isFocused, setIsFocused] = useState(false);  // Zustand für den Fokus
 
   useEffect(() => {
     (async () => {
-      let location = await getCurrentLocation();
       if (location) {
         setLocation(location);
       }
@@ -18,29 +15,18 @@ const GooglePlacesInputComponent = ({ onLocationSelect }) => {
   }, []);
 
   return (
-      <View style={[styles.container, isFocused ? { zIndex: 1 } : {}]}>
+    <View style={[styles.container, isFocused ? { zIndex: 1 } : {}]}>
       <GooglePlacesAutocomplete
         placeholder='Suche'
-        onPress={(data, details = null) => {  
-            // Beim Auswählen eine Funktion aufrufen und die Details weitergeben
+        onPress={(data, details = null) => {
           onLocationSelect(details);
           setIsFocused(false);  // Fokus aufheben nach Auswahl
-            
         }}
         query={{
           key: process.env.GOOGLE_MAPS_KEY,
           language: 'de',
         }}
         currentLocationLabel="Mein Standort"
-        predefinedPlaces={[{
-            description: 'Aktueller Standort',
-            geometry: { location: { lat: location?.coords.latitude, lng: location?.coords.longitude } }
-          }]}
-        renderRightButton={() => (
-          <View style={styles.myLocationButton}>
-            <Icon name="my-location" size={20} color="#000" />
-          </View>
-        )}
         textInputProps={{
           onFocus: () => setIsFocused(true),  // Fokus setzen
           onBlur: () => setIsFocused(false),  // Fokus aufheben
@@ -55,10 +41,12 @@ const GooglePlacesInputComponent = ({ onLocationSelect }) => {
   );
 };
 
+  
+
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: '3%',
+    top: '10%',
     width: '80%',
     padding: 10,
     // mitte
@@ -88,4 +76,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default GooglePlacesInputComponent;
+export default SearchBarDestinationComponent;

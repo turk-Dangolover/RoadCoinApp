@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import MapView, { Polyline } from 'react-native-maps';
+import MapView, { Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { getCurrentLocation } from '../services/routeService';
 import { Text } from 'react-native';
 
@@ -19,6 +19,7 @@ const MapViewComponent = ({ route }) => {
   console.log('MapViewComponent location: ', location)
   return location ? (
     <MapView
+    provider={PROVIDER_GOOGLE}
       style={{ flex: 1 }}
       initialRegion={{
         latitude: location.coords.latitude,
