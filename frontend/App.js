@@ -5,10 +5,19 @@ import ShopScreen from './src/screens/ShopScreen';
 import AvatarScreen from './src/screens/AvatarScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import HubScreen from './src/screens/HubScreen';
+import RegistrationScreen from './src/screens/Registration';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function App() {
-  const [activeScreen, setActiveScreen] = useState('Map');
+  const [activeScreen, setActiveScreen] = useState('Registration');
+  console.log("Active Screen:", activeScreen);
+
+
+  // useEffect(() => {
+  //   // Füge hier die Logik hinzu, um zu überprüfen, ob der Benutzer eingeloggt ist
+  //   // Wenn der Benutzer eingeloggt ist, setze den aktiven Bildschirm auf 'Map' oder eine andere Standardseite
+  //   // Ansonsten lass den aktiven Bildschirm auf 'Login'
+  // }, []);
 
   const changeScreen = (screen) => {
     setActiveScreen(screen);
@@ -24,6 +33,8 @@ export default function App() {
         return <AvatarScreen />;
       case 'Profile':
         return <ProfileScreen />;
+      case 'Registration':
+        return <RegistrationScreen />;
       default:
         return <MapScreen />;
     }
