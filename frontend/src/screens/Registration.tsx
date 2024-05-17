@@ -5,15 +5,16 @@ export default function Registration() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
+  const serverip = process.env.SERVER_IP;
 
   const handleRegistration = () => {
     const data = {
-      email: email,
       username: username,
+      email: email,
       password: password
     };
     
-    fetch(`http://localhost:8080/save`, {
+    fetch(serverip, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -21,20 +22,6 @@ export default function Registration() {
       body: JSON.stringify(data),
     }
   )
-    // .then(response => {
-    //   if (!response.ok) {
-    //     throw new Error('Fehler bei der Registrierung');
-    //   }
-    //   return response.json();
-    // })
-    // .then(result => {
-    //   console.log('Registrierungsantwort:', result);
-    //   // Hier kannst du je nach Backend-Antwort entsprechend reagieren
-    //   // Zum Beispiel: Navigation zur Anmeldeseite, Anzeigen einer Erfolgsmeldung usw.
-    // })
-    // .catch(error => {
-    //   console.error('Fehler bei der Registrierung:', error);
-    // });
   };
   
 

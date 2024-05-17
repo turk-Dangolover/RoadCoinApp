@@ -62,9 +62,10 @@ public class UserController {
         }
 
         String verification_id = UUID.randomUUID().toString();
-        String verify = "false";
+        Boolean verify = false;
 
-        dbService.saveDataToDb(users.getEmail(), users.getUsername(), users.getPassword(), verification_id, verify);
+
+        dbService.saveDataToDb(users.getEmail(), users.getUsername(), users.getPassword(), verify, verification_id);
 
         // mailSender.sendDataMail(users.getEmail(), users.getFirstName(), users.getLastName(), users.getCurrURL(),
         //         verification_id);

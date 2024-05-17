@@ -23,20 +23,18 @@ public class DbService {
     }
     @CrossOrigin
     @PostMapping("/save")
-    public void saveDataToDb(String email, String username, String password, String verify, String verification_id) throws SQLException {
-
+    public void saveDataToDb(String email, String username, String password, Boolean verify, String verification_id) throws SQLException {
+ 
         try {
-            String sql = """
-                    INSERT INTO users (username, email, password, verification_id, verify) \
-                    VALUES (?, ?, ?, ?, ?)\
-                    """;
+            String sql = "INSERT INTO users (username, email, password, verify, verification_id) " +
+                    "VALUES (?, ?, ?, ?, ?)";
 
             jdbcTemplate.update(connection -> {
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setString(1, username);
                 preparedStatement.setString(2, email);
                 preparedStatement.setString(3, password);
-                preparedStatement.setString(4, verify);
+                preparedStatement.setBoolean(4, verify);
                 preparedStatement.setString(5, verification_id);
                 return preparedStatement;
             });
