@@ -7,20 +7,20 @@ import com.seproject.appbackend.DTO.Users;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
+// import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.io.File;
+// import java.io.File;
 import java.io.IOException;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+// import java.io.FileInputStream;
+// import java.io.FileOutputStream;
 
 import com.lowagie.text.DocumentException;
 import com.seproject.appbackend.Service.DbService;
 // import com.seproject.appbackend.Service.MailSender;
 
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+// import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.regex.Matcher;

@@ -1,6 +1,5 @@
 package com.seproject.appbackend.Service;
 
-import java.util.List;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import org.springframework.stereotype.Service;
