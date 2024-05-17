@@ -7,7 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import MenuListButtonComponent from './MenuListButtonComponent';
 
-const RouteConfigButtonComponent = () => {
+const RouteConfigButtonComponent = ({ routeConfig, toggleVisibility }) => {
   const height = useSharedValue(80);  // Default height
   const open = useSharedValue(false);  // Default state
 
@@ -24,7 +24,7 @@ const RouteConfigButtonComponent = () => {
       transform: [{ scale: open.value ? 1 : 0.5 }], // Skaliert das Element von 0.5 bis 1
     };
   });
-  
+
 
   const handlePress = () => {
     height.value = withSpring(!open.value ? 450 : 80, {
@@ -34,7 +34,7 @@ const RouteConfigButtonComponent = () => {
 
     open.value = !open.value;
   };
-  
+
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
@@ -42,12 +42,11 @@ const RouteConfigButtonComponent = () => {
         <Text style={styles.buttonText}>Route einstellen</Text>
       </TouchableOpacity>
       <Animated.View style={[styles.content, contentStyle]}>
-        {/* Additional content that becomes visible as the panel expands */}
-        <MenuListButtonComponent name="Freie Route" />
-        <MenuListButtonComponent name="Manuell Route eingeben" />
-        <MenuListButtonComponent name="Filter Route" />
-        <MenuListButtonComponent name="Schnelle Route" />
+        {Object.keys(routeConfig).map(key => (
+          <MenuListButtonComponent key={key} onPress={() => toggleVisibility(key)} name={`${key.replace('Route', '')} Route`} />
+        ))}
       </Animated.View>
+
     </Animated.View>
   );
 };
