@@ -1,59 +1,45 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import MessageScreen from './MessageScreen';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
-export default function Registration() {
-  const [activeScreen, setActiveScreen] = useState('Registration');
+export default function LoginScreen({ setVerificationId, setActiveScreen }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const serverip = process.env.SERVER_IP;
+  const serverip2 = process.env.SERVER_IP2;
 
-  const handleRegistration = async () => {
+  const handleLogin = async () => {
     const data = {
       username: username,
-      email: email,
-      password: password,
+      password: password
     };
 
     try {
-      const response = await fetch(`${serverip}`, {
+      const response = await fetch(`${serverip2}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
       });
-
-      const result = await response.text();
+      
+      const result = await response.json();
 
       if (response.ok) {
-        Alert.alert("Registrierung erfolgreich");
-        setActiveScreen('MessageScreen');
+        setVerificationId(result.verification_id);
+        setActiveScreen('Map');
+        console.log("Verification ID:", result.verification_id);
       } else {
-        Alert.alert("Fehler", result);
+        alert(result);
       }
     } catch (error) {
       console.error('Error:', error);
-      Alert.alert('Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.');
+      alert('Login failed. Please try again.');
     }
   };
 
-  if (activeScreen === 'MessageScreen') {
-    return <MessageScreen />;
-  }
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Registrierung</Text>
+      <Text style={styles.title}>Login</Text>
       <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#aaa"
-          value={email}
-          onChangeText={setEmail}
-        />
         <TextInput
           style={styles.input}
           placeholder="Benutzername"
@@ -70,8 +56,8 @@ export default function Registration() {
           secureTextEntry={true}
         />
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleRegistration}>
-        <Text style={styles.buttonText}>Registrieren</Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Einloggen</Text>
       </TouchableOpacity>
     </View>
   );

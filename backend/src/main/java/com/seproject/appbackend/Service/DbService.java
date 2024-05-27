@@ -3,8 +3,6 @@ package com.seproject.appbackend.Service;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import org.slf4j.Logger;
@@ -20,10 +18,8 @@ public class DbService {
     public DbService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-    @CrossOrigin
-    @PostMapping("/save")
-    public void saveDataToDb(String email, String username, String password, Boolean verify, String verification_id) throws SQLException {
- 
+
+    public boolean saveDataToDb(String email, String username, String password, Boolean verify, String verification_id) throws SQLException {
         try {
             String sql = "INSERT INTO users (username, email, password, verify, verification_id) " +
                     "VALUES (?, ?, ?, ?, ?)";
@@ -38,10 +34,11 @@ public class DbService {
                 return preparedStatement;
             });
             logger.info("Data was saved in the db!");
+            return true;
 
         } catch (Exception e) {
             logger.error("Failed to insert user info into db!: {}", e.getMessage());
+            return false;
         }
-
     }
 }

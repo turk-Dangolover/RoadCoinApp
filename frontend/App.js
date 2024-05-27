@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import MapScreen from './src/screens/MapScreen';
 import ShopScreen from './src/screens/ShopScreen';
 import AvatarScreen from './src/screens/AvatarScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import HubScreen from './src/screens/HubScreen';
 import RegistrationScreen from './src/screens/Registration';
+import LoginScreen from './src/screens/LoginScreen';
+import AccountScreen from './src/screens/AccountScreen';
+import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
+import ChangeEmailScreen from './src/screens/ChangeEmailScreen';
+import HelpScreen from './src/screens/HelpScreen';
+import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function App() {
   const [activeScreen, setActiveScreen] = useState('Registration');
-  console.log("Active Screen:", activeScreen);
-
-
-  // useEffect(() => {
-  //   // Füge hier die Logik hinzu, um zu überprüfen, ob der Benutzer eingeloggt ist
-  //   // Wenn der Benutzer eingeloggt ist, setze den aktiven Bildschirm auf 'Map' oder eine andere Standardseite
-  //   // Ansonsten lass den aktiven Bildschirm auf 'Login'
-  // }, []);
+  const [verification_id, setVerificationId] = useState(null);
 
   const changeScreen = (screen) => {
     setActiveScreen(screen);
@@ -26,17 +25,31 @@ export default function App() {
   const renderActiveScreen = () => {
     switch (activeScreen) {
       case 'Hub':
-        return <HubScreen />;
+        return <HubScreen verification_id={verification_id} />;
       case 'Shop':
-        return <ShopScreen />;
-      case 'Avatar':
-        return <AvatarScreen />;
+        return <ShopScreen verification_id={verification_id} />;
+        case 'Avatar':
+          return <AvatarScreen verification_id={verification_id} />;
       case 'Profile':
-        return <ProfileScreen />;
+        return <ProfileScreen verification_id={verification_id} changeScreen={changeScreen} />;
       case 'Registration':
         return <RegistrationScreen />;
+      case 'Login':
+        return <LoginScreen setVerificationId={setVerificationId} setActiveScreen={setActiveScreen} />;
+      case 'Account':
+        return <AccountScreen changeScreen={changeScreen} />;
+      case 'ChangePassword':
+        return <ChangePasswordScreen verification_id={verification_id} changeScreen={changeScreen} />;
+      case 'ChangeEmail':
+        return <ChangeEmailScreen verification_id={verification_id} changeScreen={changeScreen} />;
+      case 'Help':
+        return <HelpScreen changeScreen={changeScreen} />;
+      case 'PrivacyPolicy':
+        return <PrivacyPolicyScreen changeScreen={changeScreen} />;
+      case 'SignOut':
+        return <LoginScreen setVerificationId={setVerificationId} setActiveScreen={setActiveScreen} />;
       default:
-        return <MapScreen />;
+        return <MapScreen verification_id={verification_id} />;
     }
   };
 
@@ -45,7 +58,6 @@ export default function App() {
       <View style={styles.content}>
         {renderActiveScreen()}
       </View>
-
       <View style={styles.navBar}>
         <TouchableOpacity onPress={() => changeScreen('Hub')} style={styles.navItem}>
           <MaterialCommunityIcons name="home" size={24} color={activeScreen === 'Hub' ? '#3998E8' : 'gray'} />
@@ -61,6 +73,9 @@ export default function App() {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => changeScreen('Profile')} style={styles.navItem}>
           <MaterialCommunityIcons name="account-circle" size={24} color={activeScreen === 'Profile' ? '#3998E8' : 'gray'} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => changeScreen('Login')} style={styles.navItem}>
+          <MaterialCommunityIcons name="login" size={24} color={activeScreen === 'Login' ? '#3998E8' : 'gray'} />
         </TouchableOpacity>
       </View>
     </View>
@@ -78,7 +93,7 @@ const styles = StyleSheet.create({
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center',
+   alignItems: 'center',
     backgroundColor: 'white',
     height: 65,
     paddingVertical: 15,

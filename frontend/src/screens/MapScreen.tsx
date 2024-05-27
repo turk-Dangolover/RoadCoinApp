@@ -6,7 +6,7 @@ import GooglePlacesInputComponent from '../components/GooglePlacesInputComponent
 import SearchBarDestinationComponent from '../components/SearchBarDestinationComponent';
 import { calcRouteUsingCoords } from '../services/routeService';
 
-const MapScreen = () => {
+const MapScreen = ({ verification_id }) => {
   const [route, setRoute] = useState([]);
   const [startLocation, setStartLocation] = useState(null);
   const [destinationLocation, setDestinationLocation] = useState(null);
@@ -29,17 +29,17 @@ const MapScreen = () => {
   useEffect(() => {
     const getRoute = async () => {
       console.log(startLocation, destinationLocation);
-      if (startLocation && destinationLocation) {  // Überprüfen, ob beide Standorte gesetzt sind
+      if (startLocation && destinationLocation) {
         const coordinates = await calcRouteUsingCoords(startLocation.place_id, destinationLocation.place_id);
         console.log('Route: ', coordinates);
         setRoute(coordinates);
       }
     };
 
-    if (startLocation && destinationLocation) {  // Nur ausführen, wenn beide Standorte gesetzt sind
+    if (startLocation && destinationLocation) {
       getRoute();
     }
-  }, [startLocation, destinationLocation]);  // Abhängigkeiten hinzufügen
+  }, [startLocation, destinationLocation]);
 
   const handleLocationSelect = (location) => {
     console.log('Start Standort:', location);
@@ -54,20 +54,17 @@ const MapScreen = () => {
   return (
     <View style={styles.container}>
       <MapViewComponent route={route} />
-      {/* Wenn ManuelleRoute angeklickt wird, wird es erst sichtbar */}
       {routeConfig.ManuelleRoute && (
         <>
           <GooglePlacesInputComponent onLocationSelect={handleLocationSelect} />
           <SearchBarDestinationComponent onLocationSelect={handleLocationSelect2} />
         </>
       )}
-      {/* Wird unsichtbar, wenn was ausgewählt wird */}
       {!isAnyRouteActive(routeConfig) && (
-      <RouteConfigButtonComponent routeConfig={routeConfig} toggleVisibility={toggleVisibility} />
-    )}
+        <RouteConfigButtonComponent routeConfig={routeConfig} toggleVisibility={toggleVisibility} />
+      )}
     </View>
   );
-
 };
 
 const styles = {
