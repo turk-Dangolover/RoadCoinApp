@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
 import polyline from '@mapbox/polyline';
-
+import Constants from 'expo-constants'; // Import the Constants module
 
 const calcRouteUsingCoords = async (originPlaceId, destinationPlaceId) => {
     const apiKey = process.env.GOOGLE_MAPS_KEY;
@@ -10,6 +10,9 @@ const calcRouteUsingCoords = async (originPlaceId, destinationPlaceId) => {
     try {
         const response = await fetch(url);
         const data = await response.json();
+        // in meter
+        const totalDistance = data.routes[0].legs[0].distance.value;
+        console.log("Data: " + JSON.stringify(data));
 
         if (!data.routes.length) {
             throw new Error('Keine Route gefunden');
@@ -18,11 +21,12 @@ const calcRouteUsingCoords = async (originPlaceId, destinationPlaceId) => {
         const route = data.routes[0];
         const points = polyline.decode(route.overview_polyline.points); // Polyline für die gesamte Route
         const smoothCoordinates = smoothRoute(points);
-
-        return smoothCoordinates;
+        
+        return { route: smoothCoordinates, distance: totalDistance };
     } catch (error) {
+        console.log("Place ID: ", originPlaceId, destinationPlaceId);
         console.error("Fehler bei der Routenberechnung: ", error);
-        return [];
+        return { route: [], distance: 0 };
     }
 };
 
@@ -45,16 +49,35 @@ const smoothRoute = (points) => {
     return smoothed;
 };
 
+// Funktion zum Abrufen der Place ID von Google Maps API basierend auf Koordinaten
+const getPlaceIdFromCoords = async (latitude, longitude) => {
+    const apiKey = process.env.GOOGLE_MAPS_KEY;
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
 
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
 
-const getCurrentLocation = async () => {
+        if (!data.results.length) {
+            throw new Error('Keine Place ID gefunden');
+        }
+
+        console.log("Place IDsss: ", data.results[0].place_id);
+
+        return data.results[0].place_id;
+    } catch (error) {
+        console.error("Fehler bei der Place ID Abrufung: ", error);
+        return null;
+    }
+};
+
+// Funktion zum Abrufen des aktuellen Standorts und der zugehörigen Place ID
+const getCurrentLocationWithPlaceId = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
         console.error('Permission to access location was denied');
-        console.log('#####Permission to access location was denied');
-        return;
+        return null;
     }
-    console.log('#####Fetching location...');
     try {
         let location = await Location.getCurrentPositionAsync({
             accuracy: Location.Accuracy.High,
@@ -62,14 +85,56 @@ const getCurrentLocation = async () => {
             distanceInterval: 50,
             mayShowUserSettingsDialog: true,
         });
-        console.log('#####Location: ', location);
-        return location;
+
+        const coords = location.coords;
+        const placeId = await getPlaceIdFromCoords(coords.latitude, coords.longitude);
+        console.log("Place ID5: ", placeId);
+
+        return {
+            ...coords,
+            placeId,
+        };
     } catch (error) {
         console.error('Error fetching location: ', error);
-        console.log('#####Error fetching location: ', error);
         return null;
     }
-}
+};
 
-export { getCurrentLocation };
-export { calcRouteUsingCoords };
+// Funktion zum Berechnen der zurückgelegten Distanz
+const calculateDistance = (currentLocation, route) => {
+    let traveledDistance = 0;
+    for (let i = 0; i < route.length - 1; i++) {
+        const segmentStart = route[i];
+        const segmentEnd = route[i + 1];
+        const segmentDistance = haversineDistance(segmentStart, segmentEnd);
+        const currentToEnd = haversineDistance(currentLocation, segmentEnd);
+        const currentToStart = haversineDistance(currentLocation, segmentStart);
+
+        if (currentToEnd < segmentDistance && currentToStart < segmentDistance) {
+            traveledDistance += haversineDistance(segmentStart, currentLocation);
+            break;
+        } else {
+            traveledDistance += segmentDistance;
+        }
+    }
+    return traveledDistance;
+};
+
+// Haversine Distanzberechnung
+const haversineDistance = (coords1, coords2) => {
+    const toRad = (x) => (x * Math.PI) / 180;
+    const R = 6371; // Erdradius in km
+    const dLat = toRad(coords2.latitude - coords1.latitude);
+    const dLon = toRad(coords2.longitude - coords1.longitude);
+    const lat1 = toRad(coords1.latitude);
+    const lat2 = toRad(coords2.latitude);
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c * 1000; // Distanz in Metern
+    return d;
+};
+
+export { getCurrentLocationWithPlaceId, calcRouteUsingCoords };
