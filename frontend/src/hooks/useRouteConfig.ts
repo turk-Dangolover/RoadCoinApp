@@ -18,8 +18,6 @@ const useRouteConfig = () => {
   useEffect(() => {
     const getRoute = async () => {
       if (startLocation && destinationLocation) {
-        console.log('Calculating route...' + JSON.stringify(startLocation) + ' ' + destinationLocation.place_id);
-        // wenn in startLocation description vorhanden ist, dann wird die die place_id neu gesetzt
         if (startLocation.description === 'Aktueller Standort') {
           startLocation.place_id = (await getCurrentLocationWithPlaceId()).placeId;
         }
@@ -29,11 +27,12 @@ const useRouteConfig = () => {
         setCoins(await calcGainableCoins(coordinates.distance));
       }
     };
-
+  
     if (startLocation && destinationLocation) {
       getRoute();
     }
-  }, [startLocation, destinationLocation]);
+  }, [startLocation, destinationLocation]); // Überprüfe nur, wenn Start- und Zielort sich ändern
+  
 
   const toggleVisibility = (key) => {
     setRouteConfig((prevState) => ({ ...prevState, [key]: !prevState[key] }));

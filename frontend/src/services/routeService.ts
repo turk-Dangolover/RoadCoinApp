@@ -4,31 +4,29 @@ import Constants from 'expo-constants'; // Import the Constants module
 
 const calcRouteUsingCoords = async (originPlaceId, destinationPlaceId) => {
     const apiKey = process.env.GOOGLE_MAPS_KEY;
-    const mode = "walking"; // "driving", "walking", "bicycling"
+    const mode = "walking"; 
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${originPlaceId}&destination=place_id:${destinationPlaceId}&mode=${mode}&key=${apiKey}`;
-
+  
     try {
-        const response = await fetch(url);
-        const data = await response.json();
-        // in meter
-        const totalDistance = data.routes[0].legs[0].distance.value;
-        console.log("Data: " + JSON.stringify(data));
-
-        if (!data.routes.length) {
-            throw new Error('Keine Route gefunden');
-        }
-
-        const route = data.routes[0];
-        const points = polyline.decode(route.overview_polyline.points); // Polyline für die gesamte Route
-        const smoothCoordinates = smoothRoute(points);
-        
-        return { route: smoothCoordinates, distance: totalDistance };
+      const response = await fetch(url);
+      const data = await response.json();
+  
+      if (!data.routes.length) {
+        throw new Error('Keine Route gefunden');
+      }
+  
+      const route = data.routes[0];
+      const points = polyline.decode(route.overview_polyline.points);
+      const smoothCoordinates = smoothRoute(points);
+  
+      return { route: smoothCoordinates, distance: data.routes[0].legs[0].distance.value };
     } catch (error) {
-        console.log("Place ID: ", originPlaceId, destinationPlaceId);
-        console.error("Fehler bei der Routenberechnung: ", error);
-        return { route: [], distance: 0 };
+      console.error("Fehler bei der Routenberechnung: ", error);
+      // Optional: Benachrichtigung der UI über den Fehler
+      return { route: [], distance: 0 };
     }
-};
+  };
+  
 
 const smoothRoute = (points) => {
     const smoothed = [];
