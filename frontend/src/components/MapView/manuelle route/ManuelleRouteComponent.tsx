@@ -1,4 +1,3 @@
-// ManuelleRouteComponent.js
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
@@ -16,6 +15,7 @@ const ManuelleRouteComponent = ({
   onStartPress,
   distance,
   coins,
+  isNavigating,
 }) => {
   return (
     <>
@@ -23,28 +23,32 @@ const ManuelleRouteComponent = ({
         <View style={styles.backButtonContainer}>
           <BackButtonComponent onPress={hideManuelleRoute} />
         </View>
-        <View style={[styles.inputContainer, { zIndex: 3 }]}>
-          <GooglePlacesInputComponent onLocationSelect={handleLocationSelect} />
-        </View>
-        <View style={[styles.inputContainer, { zIndex: 2 }]}>
-          <SearchBarDestinationComponent
-            onLocationSelect={handleLocationSelect2}
-          />
-        </View>
+        {!isNavigating && (
+          <>
+            <View style={[styles.inputContainer, { zIndex: 3 }]}>
+              <GooglePlacesInputComponent onLocationSelect={handleLocationSelect} />
+            </View>
+            <View style={[styles.inputContainer, { zIndex: 2 }]}>
+              <SearchBarDestinationComponent onLocationSelect={handleLocationSelect2} />
+            </View>
+          </>
+        )}
         <View>
           <InfoBoxRouteComponent distance={distance} coins={coins} />
         </View>
       </View>
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Start"
-          onPress={onStartPress}
-          disabled={!startLocation || !destinationLocation}
-          buttonStyle={styles.startButton}
-          disabledStyle={styles.disabledButton}
-          containerStyle={styles.fullWidthButtonContainer}
-        />
-      </View>
+      {!isNavigating && (
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Start"
+            onPress={onStartPress}
+            disabled={!startLocation || !destinationLocation}
+            buttonStyle={styles.startButton}
+            disabledStyle={styles.disabledButton}
+            containerStyle={styles.fullWidthButtonContainer}
+          />
+        </View>
+      )}
     </>
   );
 };
@@ -56,7 +60,7 @@ const styles = StyleSheet.create({
     width: "100%",
     zIndex: 2,
     top: "5%",
-    alignItems: "center", // Zentriert den Inhalt horizontal
+    alignItems: "center",
   },
   backButtonContainer: {
     position: "absolute",
@@ -70,21 +74,21 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 20, // Positioniere den Button am unteren Rand
+    bottom: 20,
     width: "100%",
-    alignItems: "center", // Zentriert den Inhalt horizontal
+    alignItems: "center",
   },
   fullWidthButtonContainer: {
-    width: "90%", // Setze die Breite des Button-Containers auf 90% der Bildschirmbreite
+    width: "90%",
   },
   startButton: {
     backgroundColor: "blue",
     borderRadius: 5,
-    width: "100%", // Setze die Breite des Buttons auf 100% des Containers
+    width: "100%",
   },
   disabledButton: {
     backgroundColor: "grey",
-    width: "100%", // Setze die Breite des Buttons auf 100% des Containers
+    width: "100%",
   },
 });
 

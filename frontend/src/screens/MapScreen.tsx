@@ -5,8 +5,9 @@ import useRouteConfig from '../hooks/useRouteConfig';
 import * as Location from 'expo-location';
 import ManuelleRouteComponent from '../components/MapView/manuelle route/ManuelleRouteComponent';
 import RouteConfigButtonComponent from '../components/MapView/RouteConfigButtonComponent';
+import { calcRouteUsingCoords, getCurrentLocationWithPlaceId } from '../services/routeService';
 
-const MapScreen = () => {
+const MapScreen = ({verification_id}) => {
   const {
     route,
     routeConfig,
@@ -19,41 +20,46 @@ const MapScreen = () => {
     isAnyRouteActive,
     distance,
     coins,
+    isNavigating,
+    setIsNavigating,
   } = useRouteConfig();
 
-  const [isNavigating, setIsNavigating] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(null);
   const mapViewRef = useRef(null);
+
 
   const handleStartPress = () => {
     setIsNavigating(true);
     console.log('Route started');
   };
 
-  useEffect(() => {
-    if (isNavigating) {
-      const interval = setInterval(async () => {
-        let location = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.High,
-        });
-        setCurrentLocation(location.coords);
-        checkIfRouteCompleted(location.coords);
-      }, 5000);
-
-      return () => clearInterval(interval);
-    }
-  }, [isNavigating]);
-
-  const checkIfRouteCompleted = (currentCoords) => {
-    if (destinationLocation) {
-      const distanceToDestination = haversineDistance(currentCoords, destinationLocation);
-      if (distanceToDestination < 50) { // 50 Meter als Schwellenwert
-        setIsNavigating(false);
-        console.log('Route completed');
-        alert('Route abgeschlossen!');
+// useEffect Hook zum Abfragen der aktuellen Position in einem Intervall
+useEffect(() => {
+  if (isNavigating) {
+    const interval = setInterval(async () => {
+      const location = await getCurrentLocationWithPlaceId();
+      if (location) {
+        setCurrentLocation(location);
+        checkIfRouteCompleted(location.placeId);
       }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }
+}, [isNavigating]);
+
+const checkIfRouteCompleted = async (startLocationPlaceId) => {
+  if (destinationLocation) {
+    const distanceToDestination = (await calcRouteUsingCoords(startLocationPlaceId, destinationLocation.place_id));
+    console.log('Distance to destination:', distanceToDestination.distance);
+    if (distanceToDestination.distance < 15) {
+      setIsNavigating(false);
+      console.log('Route completed');
+      alert('Route abgeschlossen!');
+      
     }
-  };
+  }
+};
 
   return (
     <View style={styles.container}>
@@ -69,6 +75,7 @@ const MapScreen = () => {
           onStartPress={handleStartPress}
           distance={distance}
           coins={coins}
+          isNavigating={isNavigating}
         />
       )}
       {!isAnyRouteActive() && (
@@ -85,19 +92,3 @@ const styles = {
 };
 
 export default MapScreen;
-
-const haversineDistance = (coords1, coords2) => {
-  const toRad = (x) => (x * Math.PI) / 180;
-  const R = 6371; // Erdradius in km
-  const dLat = toRad(coords2.latitude - coords1.latitude);
-  const dLon = toRad(coords2.longitude - coords1.longitude);
-  const lat1 = toRad(coords1.latitude);
-  const lat2 = toRad(coords2.latitude);
-
-  const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const d = R * c * 1000; // Distanz in Metern
-  return d;
-};

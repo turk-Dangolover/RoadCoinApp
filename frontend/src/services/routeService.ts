@@ -78,9 +78,9 @@ const getCurrentLocationWithPlaceId = async () => {
     }
     try {
         let location = await Location.getCurrentPositionAsync({
-            accuracy: Location.Accuracy.High,
+            accuracy: Location.Accuracy.Highest,
             timeInterval: 5000,
-            distanceInterval: 50,
+            distanceInterval: 5,
             mayShowUserSettingsDialog: true,
         });
 
@@ -98,41 +98,4 @@ const getCurrentLocationWithPlaceId = async () => {
     }
 };
 
-// Funktion zum Berechnen der zurückgelegten Distanz
-const calculateDistance = (currentLocation, route) => {
-    let traveledDistance = 0;
-    for (let i = 0; i < route.length - 1; i++) {
-        const segmentStart = route[i];
-        const segmentEnd = route[i + 1];
-        const segmentDistance = haversineDistance(segmentStart, segmentEnd);
-        const currentToEnd = haversineDistance(currentLocation, segmentEnd);
-        const currentToStart = haversineDistance(currentLocation, segmentStart);
-
-        if (currentToEnd < segmentDistance && currentToStart < segmentDistance) {
-            traveledDistance += haversineDistance(segmentStart, currentLocation);
-            break;
-        } else {
-            traveledDistance += segmentDistance;
-        }
-    }
-    return traveledDistance;
-};
-
-// Haversine Distanzberechnung
-const haversineDistance = (coords1, coords2) => {
-    const toRad = (x) => (x * Math.PI) / 180;
-    const R = 6371; // Erdradius in km
-    const dLat = toRad(coords2.latitude - coords1.latitude);
-    const dLon = toRad(coords2.longitude - coords1.longitude);
-    const lat1 = toRad(coords1.latitude);
-    const lat2 = toRad(coords2.latitude);
-
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const d = R * c * 1000; // Distanz in Metern
-    return d;
-};
-
-export { getCurrentLocationWithPlaceId, calcRouteUsingCoords };
+export { getCurrentLocationWithPlaceId, calcRouteUsingCoords};
