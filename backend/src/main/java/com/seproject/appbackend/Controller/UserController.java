@@ -1,6 +1,7 @@
 package com.seproject.appbackend.Controller;
 
 import java.util.HashMap;
+import java.util.regex.Pattern;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -77,51 +78,50 @@ public class UserController {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @GetMapping("/avatar/items/{verificationId}")
-    public ResponseEntity<List<Map<String, Object>>> getAvatarItems(@PathVariable String verificationId) {
-        List<Map<String, Object>> items = dbShopService.getAvatarItems(verificationId);
-        if (items != null) {
-            return ResponseEntity.ok(items);
-        } else {
-            return ResponseEntity.status(404).body(null);
+    @PostMapping("/delete/user")
+    public ResponseEntity<String> deleteUser(@RequestBody Map<String, String> request) {
+        String verificationId = request.get("verification_id");
+        try {
+            String sql = "DELETE FROM Users WHERE verification_id = ?";
+            jdbcTemplate.update(sql, verificationId);
+            return ResponseEntity.ok("User deleted successfully");
+        } catch (Exception e) {
+            logger.error("Error deleting user: {}", e.getMessage());
+            return ResponseEntity.status(500).body("Failed to delete user");
         }
     }
 
     @GetMapping("/user/coins/{verificationId}")
-    public ResponseEntity<Map<String, Object>> getUserCoins(@PathVariable String verificationId) {
-        Map<String, Object> coins = dbShopService.getUserCoins(verificationId);
-        if (coins != null) {
-            return ResponseEntity.ok(coins);
-        } else {
-            return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+    public ResponseEntity<Map<String, Integer>> getUserCoins(@PathVariable String verificationId) {
+        try {
+            String sql = "SELECT currCoins FROM Users WHERE verification_id = ?";
+            @SuppressWarnings("deprecation")
+            int currCoins = jdbcTemplate.queryForObject(sql, new Object[]{verificationId}, Integer.class);
+            Map<String, Integer> response = new HashMap<>();
+            response.put("currCoins", currCoins);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Error retrieving user coins: {}", e.getMessage());
+            return ResponseEntity.status(500).body(null);
         }
     }
 
     @GetMapping("/shop/items")
     public ResponseEntity<List<Map<String, Object>>> getShopItems() {
         List<Map<String, Object>> items = dbShopService.getShopItems();
-        if (items != null) {
-            return ResponseEntity.ok(items);
-        } else {
-            return ResponseEntity.status(500).body(null);
-        }
+        return ResponseEntity.ok(items);
     }
 
     @CrossOrigin
     @PostMapping("/shop/buy")
-    public ResponseEntity<Object> buyItem(@RequestBody Map<String, Object> payload) {
-        String verificationId = (String) payload.get("verificationId");
-        Integer itemNumber = (Integer) payload.get("itemNumber");
-        
-        if (verificationId == null || itemNumber == null) {
-            return ResponseEntity.badRequest().body("Invalid payload");
-        }
-
+    public ResponseEntity<Map<String, Object>> buyItem(@RequestBody Map<String, Object> request) {
+        String verificationId = (String) request.get("verificationId");
+        int itemNumber = (int) request.get("itemNumber");
         Map<String, Object> result = dbShopService.buyItem(verificationId, itemNumber);
         if (result != null) {
             return ResponseEntity.ok(result);
         } else {
-            return ResponseEntity.status(400).body("Purchase failed");
+            return ResponseEntity.status(400).body(null);
         }
     }
 
@@ -186,19 +186,30 @@ public class UserController {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
     }
+
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
+
+    private boolean isValidEmail(String email) {
+        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+        return pattern.matcher(email).matches();
+    }
     
-    
+    @CrossOrigin
     @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody Users users) throws IOException, SQLException, DocumentException {
+
+        if (!isValidEmail(users.getEmail())) {
+            return ResponseEntity.status(400).body("Invalid email format");
+        }
 
         String verification_id = UUID.randomUUID().toString();
         Boolean verify = false;
         String currURL = "http://192.168.178.21:8080/";
 
         boolean insertInfo = dbService.saveDataToDb(users.getEmail(), users.getUsername(), users.getPassword(), verify, verification_id);
-        mailSender.sendDataMail(users.getEmail(), users.getUsername(),currURL, verification_id);
         if (insertInfo) {
-            return ResponseEntity.ok("Registraion successful");
+            mailSender.sendDataMail(users.getEmail(), users.getUsername(), currURL, verification_id);
+            return ResponseEntity.ok("Registration successful");
         } else {
             return ResponseEntity.status(401).body("Invalid Info, try again");
         }

@@ -20,7 +20,7 @@ public class DbStatsService {
 
     public Map<String, Object> getStats(String verification_id) {
         try {
-            String sql = "SELECT username, allcoins, allrout, allsteps FROM users WHERE verification_id = ?";
+            String sql = "SELECT username, allcoins, allrout, allsteps, title FROM users WHERE verification_id = ?";
             logger.info("Executing SQL query: " + sql + " with verification_id: " + verification_id);
             return jdbcTemplate.queryForMap(sql, verification_id);
         } catch (Exception e) {

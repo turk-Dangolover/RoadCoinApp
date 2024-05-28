@@ -1,4 +1,3 @@
-// src/screens/AccountScreen.js
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -37,6 +36,10 @@ const AccountScreen = ({ changeScreen }) => {
           <FontAwesome5 name="chevron-right" size={24} color="#000" style={styles.chevronIcon} />
         </TouchableOpacity>
       </View>
+      <TouchableOpacity style={styles.deleteButton} onPress={() => changeScreen('DelScreen')}>
+        <FontAwesome5 name="trash" size={24} color="#fff" style={styles.deleteButtonIcon} />
+        <Text style={styles.deleteButtonText}>Delete Account</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -81,6 +84,23 @@ const styles = StyleSheet.create({
   },
   chevronIcon: {
     marginLeft: 'auto',
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF3B30',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+    justifyContent: 'center',
+  },
+  deleteButtonIcon: {
+    marginRight: 10,
+  },
+  deleteButtonText: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 
