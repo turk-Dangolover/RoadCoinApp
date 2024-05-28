@@ -43,7 +43,8 @@ const ProfileScreen = ({ verification_id, changeScreen }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.username}>{userData.username}</Text>
-      <Text style={styles.title}>ALL TIME STATS</Text>
+      <Text style={styles.title}>hh{userData.title}</Text>
+      <Text style={styles.allTimeStats}>ALL TIME STATS</Text>
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <FontAwesome5 name="shoe-prints" size={24} color="#44C781" style={styles.icon} />
@@ -91,14 +92,19 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#252826',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   title: {
+    fontSize: 18,
+    color: '#7d7d7d',
+    marginBottom: 10,
+  },
+  allTimeStats: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#252826',
     marginBottom: 10,
-    marginTop: 90,
+    marginTop: 50,
     alignSelf: 'flex-start', // Links ausrichten
     marginLeft: 25, // Abstand zum linken Rand
   },

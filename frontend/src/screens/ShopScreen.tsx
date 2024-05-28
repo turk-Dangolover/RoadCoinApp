@@ -12,7 +12,7 @@ const ShopScreen = ({ verification_id }) => {
         const response = await fetch(`${serverip1}/shop/items`);
         const result = await response.json();
 
-        console.log("Shop items fetched:", result);  // Überprüfen Sie die zurückgegebenen Daten
+        console.log("Shop items fetched:", result);
 
         if (response.ok) {
           setShopItems(result);
@@ -29,7 +29,7 @@ const ShopScreen = ({ verification_id }) => {
         const response = await fetch(`${serverip1}/user/coins/${verification_id}`);
         const result = await response.json();
 
-        console.log("User coins fetched:", result);  // Überprüfen Sie die zurückgegebenen Daten
+        console.log("User coins fetched:", result);
 
         if (response.ok) {
           setCurrCoins(result.currCoins);

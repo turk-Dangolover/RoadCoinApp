@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import MapScreen from './src/screens/MapScreen';
 import ShopScreen from './src/screens/ShopScreen';
-import AvatarScreen from './src/screens/AvatarScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import HubScreen from './src/screens/HubScreen';
 import RegistrationScreen from './src/screens/Registration';
@@ -11,6 +10,7 @@ import AccountScreen from './src/screens/AccountScreen';
 import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
 import ChangeEmailScreen from './src/screens/ChangeEmailScreen';
 import HelpScreen from './src/screens/HelpScreen';
+import DelScreen from './src/screens/DelScreen';
 import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -28,8 +28,6 @@ export default function App() {
         return <HubScreen verification_id={verification_id} />;
       case 'Shop':
         return <ShopScreen verification_id={verification_id} />;
-        case 'Avatar':
-          return <AvatarScreen verification_id={verification_id} />;
       case 'Profile':
         return <ProfileScreen verification_id={verification_id} changeScreen={changeScreen} />;
       case 'Registration':
@@ -38,6 +36,8 @@ export default function App() {
         return <LoginScreen setVerificationId={setVerificationId} setActiveScreen={setActiveScreen} />;
       case 'Account':
         return <AccountScreen changeScreen={changeScreen} />;
+      case 'DelScreen':
+        return <DelScreen changeScreen={changeScreen} verification_id={verification_id} />;
       case 'ChangePassword':
         return <ChangePasswordScreen verification_id={verification_id} changeScreen={changeScreen} />;
       case 'ChangeEmail':
@@ -67,9 +67,6 @@ export default function App() {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => changeScreen('Map')} style={styles.navItem}>
           <MaterialCommunityIcons name="map" size={24} color={activeScreen === 'Map' ? '#3998E8' : 'gray'} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => changeScreen('Avatar')} style={styles.navItem}>
-          <MaterialCommunityIcons name="account" size={24} color={activeScreen === 'Avatar' ? '#3998E8' : 'gray'} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => changeScreen('Profile')} style={styles.navItem}>
           <MaterialCommunityIcons name="account-circle" size={24} color={activeScreen === 'Profile' ? '#3998E8' : 'gray'} />

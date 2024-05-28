@@ -6,7 +6,7 @@ import * as Location from 'expo-location';
 import ManuelleRouteComponent from '../components/MapView/manuelle route/ManuelleRouteComponent';
 import RouteConfigButtonComponent from '../components/MapView/RouteConfigButtonComponent';
 
-const MapScreen = () => {
+const MapScreen = ({ verification_id }) => {
   const {
     route,
     routeConfig,
