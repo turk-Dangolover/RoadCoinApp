@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 const DelScreen = ({ changeScreen, verification_id }) => {
   const handleDeleteAccount = async () => {
@@ -26,6 +27,9 @@ const DelScreen = ({ changeScreen, verification_id }) => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => changeScreen('Account')}>
+        <FontAwesome5 name="arrow-left" size={24} color="#000" />
+      </TouchableOpacity>
       <Text style={styles.title}>Delete Account</Text>
       <Text style={styles.text}>Are you sure you want to delete your account? This action cannot be undone.</Text>
       <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
@@ -42,6 +46,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#EBF2F6',
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+    marginBottom: 20,
+    marginTop: 50,
   },
   title: {
     fontSize: 24,

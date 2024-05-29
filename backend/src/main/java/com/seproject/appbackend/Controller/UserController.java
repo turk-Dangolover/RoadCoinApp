@@ -26,6 +26,7 @@ import com.lowagie.text.DocumentException;
 import com.seproject.appbackend.Service.DbService;
 import com.seproject.appbackend.Service.DbShopService;
 import com.seproject.appbackend.Service.DbStatsService;
+import com.seproject.appbackend.Service.DbAddService;
 import com.seproject.appbackend.Service.DbChangeEmail;
 import com.seproject.appbackend.Service.DbChangePw;
 import com.seproject.appbackend.Service.DbCheckService;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import com.seproject.appbackend.DTO.StatsUpdateDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +67,9 @@ public class UserController {
     private DbShopService dbShopService;
 
     @Autowired
+    private DbAddService dbAddService;
+
+    @Autowired
     private DbStatsService dbStatsService;
 
     @Autowired
@@ -76,6 +81,21 @@ public class UserController {
 
     public UserController(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @PostMapping("/update/stats")
+    public ResponseEntity<String> updateStats(@RequestBody StatsUpdateDTO statsUpdateDTO) {
+        String verification_id = statsUpdateDTO.getVerification_id();
+        int coins = statsUpdateDTO.getCoins();
+        int distance = statsUpdateDTO.getDistance();
+        int steps = statsUpdateDTO.getSteps();
+
+        boolean isUpdated = dbAddService.updateStats(verification_id, coins, distance, steps);
+        if (isUpdated) {
+            return ResponseEntity.ok("Stats updated successfully");
+        } else {
+            return ResponseEntity.status(400).body("Failed to update stats");
+        }
     }
 
     @PostMapping("/delete/user")

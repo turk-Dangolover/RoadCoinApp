@@ -132,7 +132,7 @@ const MapScreen = ({ verification_id }) => {
         visible={isModalVisible}
         onClose={() => handleCloseModal()}
         visitedLocations={visitedLocations} // Pass the visited locations to the modal
-      />
+        verification_id={undefined}      />
     </View>
   );
 };
