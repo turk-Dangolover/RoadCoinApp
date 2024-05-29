@@ -43,7 +43,7 @@ const ProfileScreen = ({ verification_id, changeScreen }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.username}>{userData.username}</Text>
-      <Text style={styles.title}>hh{userData.title}</Text>
+      <Text style={styles.title}>{userData.title}</Text>
       <Text style={styles.allTimeStats}>ALL TIME STATS</Text>
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>

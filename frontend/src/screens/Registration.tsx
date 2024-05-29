@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import MessageScreen from './MessageScreen';
 
-export default function Registration() {
-  const [activeScreen, setActiveScreen] = useState('Registration');
+export default function Registration({ setActiveScreen }) {
+  const [activeScreen, setActiveScreenLocal] = useState('Registration');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -29,7 +29,7 @@ export default function Registration() {
 
       if (response.ok) {
         Alert.alert("Registrierung erfolgreich");
-        setActiveScreen('MessageScreen');
+        setActiveScreenLocal('MessageScreen');
       } else {
         Alert.alert("Fehler", result);
       }
@@ -72,6 +72,9 @@ export default function Registration() {
       </View>
       <TouchableOpacity style={styles.button} onPress={handleRegistration}>
         <Text style={styles.buttonText}>Registrieren</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.buttonSecondary} onPress={() => setActiveScreen('Login')}>
+        <Text style={styles.buttonSecondaryText}>Bereits registriert? Einloggen</Text>
       </TouchableOpacity>
     </View>
   );
@@ -116,6 +119,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  buttonSecondary: {
+    marginTop: 15,
+  },
+  buttonSecondaryText: {
+    color: '#3998E8',
+    fontSize: 16,
     textAlign: 'center',
   },
 });

@@ -31,7 +31,7 @@ export default function App() {
       case 'Profile':
         return <ProfileScreen verification_id={verification_id} changeScreen={changeScreen} />;
       case 'Registration':
-        return <RegistrationScreen />;
+        return <RegistrationScreen setActiveScreen={setActiveScreen} />;
       case 'Login':
         return <LoginScreen setVerificationId={setVerificationId} setActiveScreen={setActiveScreen} />;
       case 'Account':
@@ -58,23 +58,25 @@ export default function App() {
       <View style={styles.content}>
         {renderActiveScreen()}
       </View>
-      <View style={styles.navBar}>
-        <TouchableOpacity onPress={() => changeScreen('Hub')} style={styles.navItem}>
-          <MaterialCommunityIcons name="home" size={24} color={activeScreen === 'Hub' ? '#3998E8' : 'gray'} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => changeScreen('Shop')} style={styles.navItem}>
-          <MaterialCommunityIcons name="store" size={24} color={activeScreen === 'Shop' ? '#3998E8' : 'gray'} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => changeScreen('Map')} style={styles.navItem}>
-          <MaterialCommunityIcons name="map" size={24} color={activeScreen === 'Map' ? '#3998E8' : 'gray'} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => changeScreen('Profile')} style={styles.navItem}>
-          <MaterialCommunityIcons name="account-circle" size={24} color={activeScreen === 'Profile' ? '#3998E8' : 'gray'} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => changeScreen('Login')} style={styles.navItem}>
-          <MaterialCommunityIcons name="login" size={24} color={activeScreen === 'Login' ? '#3998E8' : 'gray'} />
-        </TouchableOpacity>
-      </View>
+      {(activeScreen !== 'Login' && activeScreen !== 'Registration') && (
+        <View style={styles.navBar}>
+          <TouchableOpacity onPress={() => changeScreen('Hub')} style={styles.navItem}>
+            <MaterialCommunityIcons name="home" size={24} color={activeScreen === 'Hub' ? '#3998E8' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => changeScreen('Shop')} style={styles.navItem}>
+            <MaterialCommunityIcons name="store" size={24} color={activeScreen === 'Shop' ? '#3998E8' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => changeScreen('Map')} style={styles.navItem}>
+            <MaterialCommunityIcons name="map" size={24} color={activeScreen === 'Map' ? '#3998E8' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => changeScreen('Profile')} style={styles.navItem}>
+            <MaterialCommunityIcons name="account-circle" size={24} color={activeScreen === 'Profile' ? '#3998E8' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => changeScreen('Login')} style={styles.navItem}>
+            <MaterialCommunityIcons name="login" size={24} color={activeScreen === 'Login' ? '#3998E8' : 'gray'} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
@@ -90,7 +92,7 @@ const styles = StyleSheet.create({
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-   alignItems: 'center',
+    alignItems: 'center',
     backgroundColor: 'white',
     height: 65,
     paddingVertical: 15,

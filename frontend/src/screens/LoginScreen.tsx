@@ -59,6 +59,9 @@ export default function LoginScreen({ setVerificationId, setActiveScreen }) {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Einloggen</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.buttonSecondary} onPress={() => setActiveScreen('Registration')}>
+        <Text style={styles.buttonSecondaryText}>Noch kein Konto? Registrieren</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -102,6 +105,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  buttonSecondary: {
+    marginTop: 15,
+  },
+  buttonSecondaryText: {
+    color: '#3998E8',
+    fontSize: 16,
     textAlign: 'center',
   },
 });
