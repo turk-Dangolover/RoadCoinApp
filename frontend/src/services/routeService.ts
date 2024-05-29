@@ -60,8 +60,6 @@ const getPlaceIdFromCoords = async (latitude, longitude) => {
             throw new Error('Keine Place ID gefunden');
         }
 
-        console.log("Place IDsss: ", data.results[0].place_id);
-
         return data.results[0].place_id;
     } catch (error) {
         console.error("Fehler bei der Place ID Abrufung: ", error);
@@ -78,15 +76,14 @@ const getCurrentLocationWithPlaceId = async () => {
     }
     try {
         let location = await Location.getCurrentPositionAsync({
-            accuracy: Location.Accuracy.High,
+            accuracy: Location.Accuracy.Highest,
             timeInterval: 5000,
-            distanceInterval: 50,
+            distanceInterval: 2,
             mayShowUserSettingsDialog: true,
         });
 
         const coords = location.coords;
         const placeId = await getPlaceIdFromCoords(coords.latitude, coords.longitude);
-        console.log("Place ID5: ", placeId);
 
         return {
             ...coords,
@@ -98,41 +95,54 @@ const getCurrentLocationWithPlaceId = async () => {
     }
 };
 
-// Funktion zum Berechnen der zurückgelegten Distanz
-const calculateDistance = (currentLocation, route) => {
-    let traveledDistance = 0;
-    for (let i = 0; i < route.length - 1; i++) {
-        const segmentStart = route[i];
-        const segmentEnd = route[i + 1];
-        const segmentDistance = haversineDistance(segmentStart, segmentEnd);
-        const currentToEnd = haversineDistance(currentLocation, segmentEnd);
-        const currentToStart = haversineDistance(currentLocation, segmentStart);
-
-        if (currentToEnd < segmentDistance && currentToStart < segmentDistance) {
-            traveledDistance += haversineDistance(segmentStart, currentLocation);
-            break;
-        } else {
-            traveledDistance += segmentDistance;
-        }
-    }
-    return traveledDistance;
+// Funktion zum Generieren zufälliger Koordinaten innerhalb eines Radius
+const generateRandomCoords = (originCoords, radius) => {
+  const randomDistance = Math.random() * radius;
+  const randomAngle = Math.random() * 2 * Math.PI;
+  const deltaLat = randomDistance * Math.cos(randomAngle) / 111.32; // Approx. km per degree latitude
+  const deltaLng = randomDistance * Math.sin(randomAngle) / (111.32 * Math.cos(originCoords.latitude * Math.PI / 180)); // Approx. km per degree longitude
+  return {
+      latitude: originCoords.latitude + deltaLat,
+      longitude: originCoords.longitude + deltaLng,
+  };
 };
 
-// Haversine Distanzberechnung
-const haversineDistance = (coords1, coords2) => {
-    const toRad = (x) => (x * Math.PI) / 180;
-    const R = 6371; // Erdradius in km
-    const dLat = toRad(coords2.latitude - coords1.latitude);
-    const dLon = toRad(coords2.longitude - coords1.longitude);
-    const lat1 = toRad(coords1.latitude);
-    const lat2 = toRad(coords2.latitude);
-
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const d = R * c * 1000; // Distanz in Metern
-    return d;
+// Funktion zum Abrufen des aktuellen Standorts
+const getCurrentLocation = async () => {
+  let { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted') {
+      console.error('Permission to access location was denied');
+      return null;
+  }
+  try {
+      let location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Highest,
+      });
+      return location.coords;
+  } catch (error) {
+      console.error('Error fetching location: ', error);
+      return null;
+  }
 };
 
-export { getCurrentLocationWithPlaceId, calcRouteUsingCoords };
+// Funktion zum Generieren einer Route mit einer ungefähren Länge
+const generateRandomRoute = async (desiredDistance) => {
+  const originCoords = await getCurrentLocation();
+  if (!originCoords) return null;
+
+  let attempt = 0;
+  while (attempt < 10) {
+      const randomCoords = generateRandomCoords(originCoords, 2); // 2km as a rough max distance
+      const { route, distance } = await calcRouteUsingCoords(originCoords, randomCoords);
+
+      if (distance >= desiredDistance - 500 && distance <= desiredDistance + 500) { // Allow some flexibility
+          return { route, distance };
+      }
+      attempt++;
+  }
+
+  console.error('Konnte keine geeignete Route finden');
+  return null;
+};
+
+export { getCurrentLocationWithPlaceId, calcRouteUsingCoords, generateRandomRoute};

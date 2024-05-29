@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons'; // Importieren Sie die benötigten Icons
 
 const ProfileScreen = ({ verification_id, changeScreen }) => {
@@ -34,9 +34,10 @@ const ProfileScreen = ({ verification_id, changeScreen }) => {
 
   if (!userData) {
     return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-      </View>
+      <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#0000ff" />
+      <Text style={styles.loadingText}>Stats werden geladen...</Text>
+    </View> 
     );
   }
 
@@ -160,6 +161,15 @@ const styles = StyleSheet.create({
   },
   chevronIcon: {
     marginLeft: 'auto',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
   },
 });
 

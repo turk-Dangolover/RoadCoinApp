@@ -14,6 +14,8 @@ const useRouteConfig = () => {
   });
   const [distance, setDistance] = useState(0);
   const [coins, setCoins] = useState(0)
+  const [isNavigating, setIsNavigating] = useState(false);
+
 
   useEffect(() => {
     const getRoute = async () => {
@@ -43,6 +45,9 @@ const useRouteConfig = () => {
     setRoute([]);
     setStartLocation(null);
     setDestinationLocation(null);
+    setIsNavigating(false);
+    setCoins(0);
+    setDistance(0);
   };
 
   const isAnyRouteActive = () => {
@@ -61,6 +66,9 @@ const useRouteConfig = () => {
     isAnyRouteActive,
     distance,
     coins,
+    isNavigating,
+    setIsNavigating,
+    setCoins,
   };
 };
 

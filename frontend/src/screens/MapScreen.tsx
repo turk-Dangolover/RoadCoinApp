@@ -1,10 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
-import { View, Button, Text } from 'react-native';
-import MapViewComponent from '../components/MapView/MapViewComponent';
-import useRouteConfig from '../hooks/useRouteConfig';
-import * as Location from 'expo-location';
-import ManuelleRouteComponent from '../components/MapView/manuelle route/ManuelleRouteComponent';
-import RouteConfigButtonComponent from '../components/MapView/RouteConfigButtonComponent';
+import { useState, useEffect, useRef } from "react";
+import { View, Button, Text } from "react-native";
+import MapViewComponent from "../components/MapView/MapViewComponent";
+import useRouteConfig from "../hooks/useRouteConfig";
+import * as Location from "expo-location";
+import ManuelleRouteComponent from "../components/MapView/manuelle route/ManuelleRouteComponent";
+import RouteConfigButtonComponent from "../components/MapView/RouteConfigButtonComponent";
+import {
+  calcRouteUsingCoords,
+  getCurrentLocationWithPlaceId,
+} from "../services/routeService";
+import SuccessModal from "../components/MapView/manuelle route/SuccessModal";
+import FreieRouteComponent from "../components/MapView/freie route/FreieRouteComponent";
 
 const MapScreen = ({ verification_id }) => {
   const {
@@ -12,56 +18,89 @@ const MapScreen = ({ verification_id }) => {
     routeConfig,
     setStartLocation,
     setDestinationLocation,
-    startLocation, 
-    destinationLocation, 
+    startLocation,
+    destinationLocation,
     toggleVisibility,
     hideManuelleRoute,
     isAnyRouteActive,
     distance,
     coins,
+    isNavigating,
+    setIsNavigating,
+    setCoins,
   } = useRouteConfig();
 
-  const [isNavigating, setIsNavigating] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false); // State to handle modal visibility
+  const [visitedLocations, setVisitedLocations] = useState([]); // State to store visited locations
   const mapViewRef = useRef(null);
 
   const handleStartPress = () => {
     setIsNavigating(true);
-    console.log('Route started');
+    setVisitedLocations([]); // Reset visited locations when navigation starts
+    console.log("Route started");
   };
 
+  // useEffect Hook zum Abfragen der aktuellen Position in einem Intervall
   useEffect(() => {
     if (isNavigating) {
       const interval = setInterval(async () => {
-        let location = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.High,
-        });
-        setCurrentLocation(location.coords);
-        checkIfRouteCompleted(location.coords);
+        const location = await getCurrentLocationWithPlaceId();
+        if (location) {
+          checkIfRouteCompleted(location.placeId);
+        }
       }, 5000);
 
       return () => clearInterval(interval);
     }
   }, [isNavigating]);
 
-  const checkIfRouteCompleted = (currentCoords) => {
+  const checkIfRouteCompleted = async (startLocationPlaceId) => {
     if (destinationLocation) {
-      const distanceToDestination = haversineDistance(currentCoords, destinationLocation);
-      if (distanceToDestination < 50) { // 50 Meter als Schwellenwert
+      const distanceToDestination = await calcRouteUsingCoords(
+        startLocationPlaceId,
+        destinationLocation.place_id
+      );
+      console.log("Distance to destination:", distanceToDestination.distance);
+      if (distanceToDestination.distance < 7) {
         setIsNavigating(false);
-        console.log('Route completed');
-        alert('Route abgeschlossen!');
+        console.log("Route completed");
+        setIsModalVisible(true); // Show the success modal
       }
     }
   };
 
+  const handleVisitedLocationsChange = (locations) => {
+    if (isNavigating) {
+      // Only update visited locations if navigating
+      setVisitedLocations(locations);
+    }
+  };
+
+  const handleHideManuelleRoute = () => {
+    hideManuelleRoute();
+    setVisitedLocations([]); // Reset visited locations when navigation stops
+  };
+
+  const handleCloseModal = () => {
+    setVisitedLocations([]); // Reset visited locations when modal closes
+    setIsModalVisible(false); // Hide modal
+    setStartLocation(null);
+    setDestinationLocation(null);
+  };
+
   return (
     <View style={styles.container}>
-      <MapViewComponent route={route} mapViewRef={mapViewRef}/>
+      <MapViewComponent
+        route={route}
+        mapViewRef={mapViewRef}
+        onVisitedLocationsChange={handleVisitedLocationsChange}
+        isNavigating={isNavigating} // Pass isNavigating to MapViewComponent
+        visitedLocations={visitedLocations} // Pass visitedLocations to MapViewComponent
+      />
 
       {routeConfig.ManuelleRoute && (
         <ManuelleRouteComponent
-          hideManuelleRoute={hideManuelleRoute}
+          hideManuelleRoute={handleHideManuelleRoute} // Use updated hide function
           handleLocationSelect={setStartLocation}
           handleLocationSelect2={setDestinationLocation}
           startLocation={startLocation}
@@ -69,11 +108,31 @@ const MapScreen = ({ verification_id }) => {
           onStartPress={handleStartPress}
           distance={distance}
           coins={coins}
+          isNavigating={isNavigating}
         />
       )}
-      {!isAnyRouteActive() && (
-        <RouteConfigButtonComponent routeConfig={routeConfig} toggleVisibility={toggleVisibility} />
+
+      {routeConfig.FreieRoute && (
+        <FreieRouteComponent
+          hideFreieRoute={hideManuelleRoute} // Use updated hide function
+          onStartPress={handleStartPress}
+          distance={distance}
+          coins={coins}
+          isNavigating={isNavigating}
+        />
       )}
+
+      {!isAnyRouteActive() && (
+        <RouteConfigButtonComponent
+          routeConfig={routeConfig}
+          toggleVisibility={toggleVisibility}
+        />
+      )}
+      <SuccessModal
+        visible={isModalVisible}
+        onClose={() => handleCloseModal()}
+        visitedLocations={visitedLocations} // Pass the visited locations to the modal
+      />
     </View>
   );
 };
@@ -85,19 +144,3 @@ const styles = {
 };
 
 export default MapScreen;
-
-const haversineDistance = (coords1, coords2) => {
-  const toRad = (x) => (x * Math.PI) / 180;
-  const R = 6371; // Erdradius in km
-  const dLat = toRad(coords2.latitude - coords1.latitude);
-  const dLon = toRad(coords2.longitude - coords1.longitude);
-  const lat1 = toRad(coords1.latitude);
-  const lat2 = toRad(coords2.latitude);
-
-  const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const d = R * c * 1000; // Distanz in Metern
-  return d;
-};

@@ -1,17 +1,13 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
+import GooglePlacesInputComponent from "../manuelle route/GooglePlacesInputComponent";
+import SearchBarDestinationComponent from "../manuelle route/SearchBarDestinationComponent";
+import InfoBoxRouteComponent from "../manuelle route/InfoBoxRouteComponent";
 import BackButtonComponent from "../BackButtonComponent";
-import GooglePlacesInputComponent from "./GooglePlacesInputComponent";
-import SearchBarDestinationComponent from "./SearchBarDestinationComponent";
-import InfoBoxRouteComponent from "./InfoBoxRouteComponent";
 
-const ManuelleRouteComponent = ({
-  hideManuelleRoute,
-  handleLocationSelect,
-  handleLocationSelect2,
-  startLocation,
-  destinationLocation,
+const FreieRouteComponent = ({
+  hideFreieRoute,
   onStartPress,
   distance,
   coins,
@@ -21,18 +17,8 @@ const ManuelleRouteComponent = ({
     <>
       <View style={styles.container}>
         <View style={styles.backButtonContainer}>
-          <BackButtonComponent onPress={hideManuelleRoute} />
+          <BackButtonComponent onPress={hideFreieRoute} />
         </View>
-        {!isNavigating && (
-          <>
-            <View style={[styles.inputContainer, { zIndex: 3 }]}>
-              <GooglePlacesInputComponent onLocationSelect={handleLocationSelect} />
-            </View>
-            <View style={[styles.inputContainer, { zIndex: 2 }]}>
-              <SearchBarDestinationComponent onLocationSelect={handleLocationSelect2} />
-            </View>
-          </>
-        )}
         <View>
           <InfoBoxRouteComponent distance={distance} coins={coins} />
         </View>
@@ -42,9 +28,7 @@ const ManuelleRouteComponent = ({
           <Button
             title="Start"
             onPress={onStartPress}
-            disabled={!startLocation || !destinationLocation}
             buttonStyle={styles.startButton}
-            disabledStyle={styles.disabledButton}
             containerStyle={styles.fullWidthButtonContainer}
           />
         </View>
@@ -86,10 +70,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: "100%",
   },
-  disabledButton: {
-    backgroundColor: "grey",
-    width: "100%",
-  },
 });
 
-export default ManuelleRouteComponent;
+export default FreieRouteComponent;
