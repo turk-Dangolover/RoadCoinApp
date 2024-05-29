@@ -60,8 +60,6 @@ const getPlaceIdFromCoords = async (latitude, longitude) => {
             throw new Error('Keine Place ID gefunden');
         }
 
-        console.log("Place IDsss: ", data.results[0].place_id);
-
         return data.results[0].place_id;
     } catch (error) {
         console.error("Fehler bei der Place ID Abrufung: ", error);
@@ -80,13 +78,12 @@ const getCurrentLocationWithPlaceId = async () => {
         let location = await Location.getCurrentPositionAsync({
             accuracy: Location.Accuracy.Highest,
             timeInterval: 5000,
-            distanceInterval: 5,
+            distanceInterval: 2,
             mayShowUserSettingsDialog: true,
         });
 
         const coords = location.coords;
         const placeId = await getPlaceIdFromCoords(coords.latitude, coords.longitude);
-        console.log("Place ID5: ", placeId);
 
         return {
             ...coords,
@@ -98,4 +95,54 @@ const getCurrentLocationWithPlaceId = async () => {
     }
 };
 
-export { getCurrentLocationWithPlaceId, calcRouteUsingCoords};
+// Funktion zum Generieren zufälliger Koordinaten innerhalb eines Radius
+const generateRandomCoords = (originCoords, radius) => {
+  const randomDistance = Math.random() * radius;
+  const randomAngle = Math.random() * 2 * Math.PI;
+  const deltaLat = randomDistance * Math.cos(randomAngle) / 111.32; // Approx. km per degree latitude
+  const deltaLng = randomDistance * Math.sin(randomAngle) / (111.32 * Math.cos(originCoords.latitude * Math.PI / 180)); // Approx. km per degree longitude
+  return {
+      latitude: originCoords.latitude + deltaLat,
+      longitude: originCoords.longitude + deltaLng,
+  };
+};
+
+// Funktion zum Abrufen des aktuellen Standorts
+const getCurrentLocation = async () => {
+  let { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted') {
+      console.error('Permission to access location was denied');
+      return null;
+  }
+  try {
+      let location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Highest,
+      });
+      return location.coords;
+  } catch (error) {
+      console.error('Error fetching location: ', error);
+      return null;
+  }
+};
+
+// Funktion zum Generieren einer Route mit einer ungefähren Länge
+const generateRandomRoute = async (desiredDistance) => {
+  const originCoords = await getCurrentLocation();
+  if (!originCoords) return null;
+
+  let attempt = 0;
+  while (attempt < 10) {
+      const randomCoords = generateRandomCoords(originCoords, 2); // 2km as a rough max distance
+      const { route, distance } = await calcRouteUsingCoords(originCoords, randomCoords);
+
+      if (distance >= desiredDistance - 500 && distance <= desiredDistance + 500) { // Allow some flexibility
+          return { route, distance };
+      }
+      attempt++;
+  }
+
+  console.error('Konnte keine geeignete Route finden');
+  return null;
+};
+
+export { getCurrentLocationWithPlaceId, calcRouteUsingCoords, generateRandomRoute};

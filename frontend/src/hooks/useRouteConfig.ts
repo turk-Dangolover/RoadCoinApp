@@ -68,6 +68,7 @@ const useRouteConfig = () => {
     coins,
     isNavigating,
     setIsNavigating,
+    setCoins,
   };
 };
 

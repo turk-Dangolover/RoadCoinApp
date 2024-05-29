@@ -93,6 +93,7 @@ public class UserController {
 
     @GetMapping("/user/coins/{verificationId}")
     public ResponseEntity<Map<String, Integer>> getUserCoins(@PathVariable String verificationId) {
+    logger.info("getUserCoins called with verificationId: {}", verificationId);
         try {
             String sql = "SELECT currCoins FROM Users WHERE verification_id = ?";
             @SuppressWarnings("deprecation")
