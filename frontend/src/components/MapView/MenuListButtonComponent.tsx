@@ -10,8 +10,7 @@ const MenuListButtonComponent = ({ name, onPress }) => {
         <MaterialCommunityIcons name="map" size={30} color="black" />
         <Text style={styles.buttonText}>{name}</Text>
       </TouchableOpacity>
-      {/* Einen grauen dünne Strich zur abgrenzung der ganz unten ist */}
-      <View style={{borderBottomColor: 'grey', borderBottomWidth: 1, width: '100%' }} />  
+      <View style={styles.separator} /> 
      </View>	
   );
 };
@@ -19,7 +18,7 @@ const MenuListButtonComponent = ({ name, onPress }) => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: '25%',
+    height: '30%',
     bottom: 10,
     alignSelf: 'center',
     backgroundColor: '#FAF9F6',
@@ -41,11 +40,18 @@ const styles = StyleSheet.create({
 
   buttonText: {
     color: 'black',
-    fontSize: 25,
-    marginRight: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
-  }
+    fontSize: 23,  // Schriftgröße leicht erhöht
+    marginLeft: 15,  // Abstand erhöht
+    textAlign: 'left',
+  },
+  
+separator: {
+  borderBottomColor: 'grey',
+  borderBottomWidth: 1,
+  width: '90%',
+  alignSelf: 'center',
+  marginVertical: 10,  // Vertikaler Abstand hinzugefügt
+},
+
 });
 export default MenuListButtonComponent;

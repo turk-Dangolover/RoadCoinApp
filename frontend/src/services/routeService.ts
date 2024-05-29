@@ -6,7 +6,9 @@ const calcRouteUsingCoords = async (originPlaceId, destinationPlaceId) => {
     const apiKey = process.env.GOOGLE_MAPS_KEY;
     const mode = "walking"; 
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${originPlaceId}&destination=place_id:${destinationPlaceId}&mode=${mode}&key=${apiKey}`;
-  
+
+    console.log("originPlaceId: ", originPlaceId);
+    console.log("destinationPlaceId: ", destinationPlaceId);
     try {
       const response = await fetch(url);
       const data = await response.json();
@@ -101,42 +103,32 @@ const generateRandomCoords = (originCoords, radius) => {
   const randomAngle = Math.random() * 2 * Math.PI;
   const deltaLat = randomDistance * Math.cos(randomAngle) / 111.32; // Approx. km per degree latitude
   const deltaLng = randomDistance * Math.sin(randomAngle) / (111.32 * Math.cos(originCoords.latitude * Math.PI / 180)); // Approx. km per degree longitude
-  return {
+  const randomCoords = {
       latitude: originCoords.latitude + deltaLat,
       longitude: originCoords.longitude + deltaLng,
   };
+  return randomCoords;
 };
 
-// Funktion zum Abrufen des aktuellen Standorts
-const getCurrentLocation = async () => {
-  let { status } = await Location.requestForegroundPermissionsAsync();
-  if (status !== 'granted') {
-      console.error('Permission to access location was denied');
-      return null;
-  }
-  try {
-      let location = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Highest,
-      });
-      return location.coords;
-  } catch (error) {
-      console.error('Error fetching location: ', error);
-      return null;
-  }
-};
 
 // Funktion zum Generieren einer Route mit einer ungefähren Länge
 const generateRandomRoute = async (desiredDistance) => {
-  const originCoords = await getCurrentLocation();
+  const originCoords = await getCurrentLocationWithPlaceId();
   if (!originCoords) return null;
 
   let attempt = 0;
   while (attempt < 10) {
       const randomCoords = generateRandomCoords(originCoords, 2); // 2km as a rough max distance
-      const { route, distance } = await calcRouteUsingCoords(originCoords, randomCoords);
+      const originPlaceId = originCoords.placeId;
+      const randomPlaceId = await getPlaceIdFromCoords(randomCoords.latitude, randomCoords.longitude);
 
-      if (distance >= desiredDistance - 500 && distance <= desiredDistance + 500) { // Allow some flexibility
+      const { route, distance } = await calcRouteUsingCoords(originPlaceId, randomPlaceId);
+
+      if (distance >= desiredDistance - 1000 && distance <= desiredDistance + 1000) { // Allow some flexibility
+          console.log(`Suitable route found after ${attempt + 1} attempts`);
           return { route, distance };
+      } else {
+          console.log(`Route distance ${distance} meters does not meet the desired range`);
       }
       attempt++;
   }
@@ -145,4 +137,4 @@ const generateRandomRoute = async (desiredDistance) => {
   return null;
 };
 
-export { getCurrentLocationWithPlaceId, calcRouteUsingCoords, generateRandomRoute};
+export { getCurrentLocationWithPlaceId, calcRouteUsingCoords, generateRandomRoute, getPlaceIdFromCoords};

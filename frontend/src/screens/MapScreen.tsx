@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Button, Text } from "react-native";
+import { View } from "react-native";
 import MapViewComponent from "../components/MapView/MapViewComponent";
 import useRouteConfig from "../hooks/useRouteConfig";
-import * as Location from "expo-location";
 import ManuelleRouteComponent from "../components/MapView/manuelle route/ManuelleRouteComponent";
 import RouteConfigButtonComponent from "../components/MapView/RouteConfigButtonComponent";
 import {
   calcRouteUsingCoords,
   getCurrentLocationWithPlaceId,
+  getPlaceIdFromCoords,
 } from "../services/routeService";
 import SuccessModal from "../components/MapView/manuelle route/SuccessModal";
 import FreieRouteComponent from "../components/MapView/freie route/FreieRouteComponent";
@@ -22,12 +22,13 @@ const MapScreen = ({ verification_id }) => {
     destinationLocation,
     toggleVisibility,
     hideManuelleRoute,
+    hideFreieRoute,
     isAnyRouteActive,
     distance,
     coins,
     isNavigating,
     setIsNavigating,
-    setCoins,
+    coordinatesFreieRoute
   } = useRouteConfig();
 
   const [isModalVisible, setIsModalVisible] = useState(false); // State to handle modal visibility
@@ -40,28 +41,49 @@ const MapScreen = ({ verification_id }) => {
     console.log("Route started");
   };
 
-  // useEffect Hook zum Abfragen der aktuellen Position in einem Intervall
   useEffect(() => {
-    if (isNavigating) {
+    const setDestination = async () => {
+      if (!destinationLocation && routeConfig.FreieRoute && coordinatesFreieRoute.length > 0) {
+        console.log('Set destination location');
+        const destinationCoords = coordinatesFreieRoute[coordinatesFreieRoute.length - 1];
+        const placeId = await getPlaceIdFromCoords(destinationCoords.latitude, destinationCoords.longitude);
+        
+        const destination = {
+          ...destinationCoords,
+          place_id: placeId
+        };
+  
+        setDestinationLocation(destination);
+        console.log(destination);
+      }
+    };
+  
+    setDestination();
+  }, [routeConfig.FreieRoute, coordinatesFreieRoute, destinationLocation]);
+  
+  useEffect(() => {
+    if (isNavigating && destinationLocation) {
       const interval = setInterval(async () => {
         const location = await getCurrentLocationWithPlaceId();
         if (location) {
+          console.log("Current location: ", location.placeId);
           checkIfRouteCompleted(location.placeId);
         }
       }, 5000);
-
+  
       return () => clearInterval(interval);
     }
-  }, [isNavigating]);
-
+  }, [isNavigating, destinationLocation]);
+  
   const checkIfRouteCompleted = async (startLocationPlaceId) => {
+    console.log('Hier: ' + JSON.stringify(destinationLocation));
     if (destinationLocation) {
       const distanceToDestination = await calcRouteUsingCoords(
         startLocationPlaceId,
         destinationLocation.place_id
       );
       console.log("Distance to destination:", distanceToDestination.distance);
-      if (distanceToDestination.distance < 7) {
+      if (distanceToDestination.distance < 10) {
         setIsNavigating(false);
         console.log("Route completed");
         setIsModalVisible(true); // Show the success modal
@@ -86,6 +108,7 @@ const MapScreen = ({ verification_id }) => {
     setIsModalVisible(false); // Hide modal
     setStartLocation(null);
     setDestinationLocation(null);
+    setIsNavigating(false);
   };
 
   return (
@@ -114,7 +137,7 @@ const MapScreen = ({ verification_id }) => {
 
       {routeConfig.FreieRoute && (
         <FreieRouteComponent
-          hideFreieRoute={hideManuelleRoute} // Use updated hide function
+          hideFreieRoute={hideFreieRoute} // Use updated hide function
           onStartPress={handleStartPress}
           distance={distance}
           coins={coins}
@@ -132,7 +155,7 @@ const MapScreen = ({ verification_id }) => {
         visible={isModalVisible}
         onClose={() => handleCloseModal()}
         visitedLocations={visitedLocations} // Pass the visited locations to the modal
-        verification_id={undefined}      />
+        verification_id={verification_id}      />
     </View>
   );
 };
