@@ -33,12 +33,12 @@ public class DbShopService {
     public Map<String, Object> buyItem(String verificationId, int itemNumber) {
         try {
             // Fetch item details
-            String getItemSql = "SELECT price, stockQuantity, itemName, itemType FROM Shop WHERE itemNumber = ?";
+            String getItemSql = "SELECT price, stockQuantity, itemName, category FROM Shop WHERE itemNumber = ?";
             Map<String, Object> item = jdbcTemplate.queryForMap(getItemSql, itemNumber);
             int price = (int) item.get("price");
             int stockQuantity = (int) item.get("stockQuantity");
             String itemName = (String) item.get("itemName");
-            String itemType = (String) item.get("itemType");
+            String category = (String) item.get("category");
     
             if (stockQuantity <= 0) {
                 logger.error("Item is out of stock");
@@ -82,7 +82,7 @@ public class DbShopService {
             response.put("currCoins", currCoins - price);
             response.put("itemNumber", itemNumber);
             response.put("itemName", itemName);
-            response.put("itemType", itemType);
+            response.put("category", category);
     
             return response;
         } catch (Exception e) {

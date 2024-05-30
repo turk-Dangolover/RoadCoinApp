@@ -43,14 +43,21 @@ const HubScreen = ({ verification_id }) => {
     fetchUserRank();
   }, [verification_id]);
 
-  const renderItem = ({ item, index }) => (
-    <View style={styles.row}>
-      <Text style={styles.rank}>{index + 1}</Text>
-      <Text style={styles.username}>{item.username}</Text>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.coins}>{item.allcoins}</Text>
-    </View>
-  );
+  const renderItem = ({ item, index }) => {
+    console.log(item);
+    let equippedTitle = item.equippedItems?.Titel?.itemname;
+    let equippedColor = item.equippedItems?.Color?.itemname;
+  
+    return (
+      <View style={styles.row}>
+        <Text style={styles.rank}>{index + 1}</Text>
+        <Text style={styles.username}>{item.username}</Text>
+        <Text style={[styles.title, { color: equippedColor || '#000' }]}>{equippedTitle}</Text>
+        <Text style={styles.coins}>{item.allcoins}</Text>
+      </View>
+    );
+  };
+  
 
   return (
     <View style={styles.container}>

@@ -23,7 +23,7 @@ public class DbStatsService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Map<String, Object> getStats(String verificationId) {
+public Map<String, Object> getStats(String verificationId) {
     try {
         // Fetch user basic stats
         String userSql = "SELECT username, allcoins, allrout, allsteps FROM users WHERE verification_id = ?";
@@ -31,7 +31,7 @@ public class DbStatsService {
         Map<String, Object> userStats = jdbcTemplate.queryForMap(userSql, verificationId);
 
         // Fetch all owned items
-        String itemsSql = "SELECT si.itemNumber, s.itemName, s.itemType, si.isEquipped " +
+        String itemsSql = "SELECT si.itemNumber, s.itemName, s.category, si.isEquipped " +
                           "FROM UserItems si JOIN Shop s ON si.itemNumber = s.itemNumber " +
                           "WHERE si.verification_id = ?";
         logger.info("Executing SQL query: {} with verification_id: {}", itemsSql, verificationId);
@@ -43,10 +43,10 @@ public class DbStatsService {
         
         for (Map<String, Object> item : items) {
             boolean isEquipped = (boolean) item.get("isEquipped");
-            String itemType = (String) item.get("itemType");
+            String category = (String) item.get("category");
             
             if (isEquipped) {
-                equippedItems.put(itemType, item);
+                equippedItems.put(category, item);
             }
             ownedItems.add(item);
         }
