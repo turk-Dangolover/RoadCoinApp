@@ -1,10 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ setVerificationId, setActiveScreen }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const serverip2 = process.env.SERVER_IP2;
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      const storedVerificationId = await AsyncStorage.getItem('verification_id');
+      if (storedVerificationId) {
+        setVerificationId(storedVerificationId);
+        setActiveScreen('Map');
+      }
+    };
+    checkLogin();
+  }, []);
 
   const handleLogin = async () => {
     const data = {
@@ -29,6 +41,7 @@ export default function LoginScreen({ setVerificationId, setActiveScreen }) {
       const result = await response.json();
 
       if (response.ok) {
+        await AsyncStorage.setItem('verification_id', result.verification_id);
         setVerificationId(result.verification_id);
         setActiveScreen('Map');
         console.log("Verification ID:", result.verification_id);

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapScreen from './src/screens/MapScreen';
 import ShopScreen from './src/screens/ShopScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -18,8 +19,25 @@ export default function App() {
   const [activeScreen, setActiveScreen] = useState('Registration');
   const [verification_id, setVerificationId] = useState(null);
 
+  useEffect(() => {
+    const checkLogin = async () => {
+      const storedVerificationId = await AsyncStorage.getItem('verification_id');
+      if (storedVerificationId) {
+        setVerificationId(storedVerificationId);
+        setActiveScreen('Map');
+      }
+    };
+    checkLogin();
+  }, []);
+
   const changeScreen = (screen) => {
     setActiveScreen(screen);
+  };
+
+  const handleSignOut = async () => {
+    await AsyncStorage.removeItem('verification_id');
+    setVerificationId(null);
+    setActiveScreen('Login');
   };
 
   const renderActiveScreen = () => {
@@ -35,7 +53,7 @@ export default function App() {
       case 'Login':
         return <LoginScreen setVerificationId={setVerificationId} setActiveScreen={setActiveScreen} />;
       case 'Account':
-        return <AccountScreen changeScreen={changeScreen} />;
+        return <AccountScreen changeScreen={changeScreen} handleSignOut={handleSignOut} />;
       case 'DelScreen':
         return <DelScreen changeScreen={changeScreen} verification_id={verification_id} />;
       case 'ChangePassword':
@@ -46,8 +64,6 @@ export default function App() {
         return <HelpScreen changeScreen={changeScreen} />;
       case 'PrivacyPolicy':
         return <PrivacyPolicyScreen changeScreen={changeScreen} />;
-      case 'SignOut':
-        return <LoginScreen setVerificationId={setVerificationId} setActiveScreen={setActiveScreen} />;
       default:
         return <MapScreen verification_id={verification_id} />;
     }
@@ -71,9 +87,6 @@ export default function App() {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => changeScreen('Profile')} style={styles.navItem}>
             <MaterialCommunityIcons name="account-circle" size={24} color={activeScreen === 'Profile' ? '#3998E8' : 'gray'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => changeScreen('Login')} style={styles.navItem}>
-            <MaterialCommunityIcons name="login" size={24} color={activeScreen === 'Login' ? '#3998E8' : 'gray'} />
           </TouchableOpacity>
         </View>
       )}

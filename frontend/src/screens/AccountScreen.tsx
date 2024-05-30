@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 
-const AccountScreen = ({ changeScreen }) => {
+const AccountScreen = ({ changeScreen, handleSignOut }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => changeScreen('Profile')}>
@@ -30,7 +30,7 @@ const AccountScreen = ({ changeScreen }) => {
           <Text style={styles.optionText}>Datenschutzerklärung</Text>
           <FontAwesome5 name="chevron-right" size={24} color="#000" style={styles.chevronIcon} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.option} onPress={() => changeScreen('SignOut')}>
+        <TouchableOpacity style={styles.option} onPress={handleSignOut}>
           <FontAwesome5 name="sign-out-alt" size={24} color="#000" style={styles.optionIcon} />
           <Text style={styles.optionText}>Sign out</Text>
           <FontAwesome5 name="chevron-right" size={24} color="#000" style={styles.chevronIcon} />
