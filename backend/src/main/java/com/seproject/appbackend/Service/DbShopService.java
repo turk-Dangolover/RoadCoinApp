@@ -20,15 +20,43 @@ public class DbShopService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Map<String, Object>> getShopItems() {
+    public Map<String, Object> getShopItems(String verificationId) {
         try {
-            String sql = "SELECT * FROM Shop";
-            return jdbcTemplate.queryForList(sql);
+            // Fetch all shop items
+            String shopSql = "SELECT * FROM Shop";
+            List<Map<String, Object>> shopItems = jdbcTemplate.queryForList(shopSql);
+    
+            // Fetch all items owned by the user
+            String ownedItemsSql = "SELECT si.itemNumber, s.itemName, s.category, si.isEquipped " +
+                                   "FROM UserItems si JOIN Shop s ON si.itemNumber = s.itemNumber " +
+                                   "WHERE si.verification_id = ?";
+            List<Map<String, Object>> ownedItems = jdbcTemplate.queryForList(ownedItemsSql, verificationId);
+    
+            // Separate equipped items
+            Map<String, Object> equippedItems = new HashMap<>();
+            for (Map<String, Object> item : ownedItems) {
+                boolean isEquipped = (boolean) item.get("isEquipped");
+                String category = (String) item.get("category");
+                
+                if (isEquipped) {
+                    equippedItems.put(category, item);
+                }
+            }
+    
+            // Prepare the result
+            Map<String, Object> result = new HashMap<>();
+            result.put("allShopItems", shopItems);
+            result.put("ownedItems", ownedItems);
+            result.put("equippedItems", equippedItems);
+    
+            return result;
         } catch (Exception e) {
-            logger.error("Error retrieving shop items: {}", e.getMessage());
+            logger.error("Error retrieving shop items: {}", e.getMessage(), e);
             return null;
         }
     }
+    
+    
 
     public Map<String, Object> buyItem(String verificationId, int itemNumber) {
         try {
@@ -61,7 +89,12 @@ public class DbShopService {
             int ownershipCount = jdbcTemplate.queryForObject(checkOwnershipSql, new Object[]{verificationId, itemNumber}, Integer.class);
     
             if (ownershipCount > 0) {
-                logger.error("User already owns this item: " + itemName);
+            //If user already owns the item, equip it and un-equip all other items in the same category
+            String unequipSql = "UPDATE UserItems SET isequipped = false WHERE verification_id = ? AND itemNumber IN (SELECT itemNumber FROM Shop WHERE category = ?)";
+            jdbcTemplate.update(unequipSql, verificationId, category);
+            
+            String updateUserSql = "UPDATE UserItems SET isequipped = true WHERE verification_id = ? AND itemNumber = ?";
+            jdbcTemplate.update(updateUserSql, verificationId, itemNumber);
                 return null;
             }
     

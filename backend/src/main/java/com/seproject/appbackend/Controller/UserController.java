@@ -33,6 +33,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.seproject.appbackend.DTO.StatsUpdateDTO;
 
@@ -122,11 +124,15 @@ public class UserController {
         }
     }
 
-    @GetMapping("/shop/items")
-    public ResponseEntity<List<Map<String, Object>>> getShopItems() {
-        List<Map<String, Object>> items = dbShopService.getShopItems();
-        return ResponseEntity.ok(items);
+@GetMapping("/shop/items")
+public ResponseEntity<Map<String, Object>> getShopItems(@RequestParam String verificationId) {
+    Map<String, Object> items = dbShopService.getShopItems(verificationId);
+    if (items == null) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
+    return ResponseEntity.ok(items);
+}
+
 
     @CrossOrigin
     @PostMapping("/shop/buy")

@@ -21,7 +21,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.dangolover.Frontend"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -31,6 +32,11 @@
     },
     "updates": {
       "url": "https://u.expo.dev/b10025dd-7b83-4505-81ca-4ec1c25674c7"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3c2c0f33-d8d3-4607-b9a6-1ad7ee58345a"
+      }
     }
   }
 }
