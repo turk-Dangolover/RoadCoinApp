@@ -31,7 +31,7 @@ export default function App() {
       case 'Profile':
         return <ProfileScreen verification_id={verification_id} changeScreen={changeScreen} />;
       case 'Registration':
-        return <RegistrationScreen setActiveScreen={setActiveScreen} />;
+        return <RegistrationScreen setActiveScreen={setActiveScreen} setVerificationId={setVerificationId} />;
       case 'Login':
         return <LoginScreen setVerificationId={setVerificationId} setActiveScreen={setActiveScreen} />;
       case 'Account':

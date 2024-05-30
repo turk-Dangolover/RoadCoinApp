@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import LoginScreen from "./LoginScreen";
 
-const MessageScreen = () => {
+const MessageScreen = (verificationId) => {
   const [activeScreen, setActiveScreen] = useState('MessageScreen');
 
   const changeScreen = (screen) => {
@@ -12,7 +12,7 @@ const MessageScreen = () => {
   const renderActiveScreen = () => {
     switch (activeScreen) {
       case 'Hub':
-        return <LoginScreen setVerificationId={undefined} setActiveScreen={undefined} />;
+        return <LoginScreen setVerificationId={verificationId} setActiveScreen={activeScreen} />;
       default:
         return (
           <View style={styles.container}>

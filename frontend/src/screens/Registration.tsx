@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import MessageScreen from './MessageScreen';
 
-export default function Registration({ setActiveScreen }) {
+export default function Registration( setActiveScreen, verificationId ) {
   const [activeScreen, setActiveScreenLocal] = useState('Registration');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -40,7 +40,7 @@ export default function Registration({ setActiveScreen }) {
   };
 
   if (activeScreen === 'MessageScreen') {
-    return <MessageScreen />;
+    return <MessageScreen verificationId={verificationId} />;
   }
 
   return (
