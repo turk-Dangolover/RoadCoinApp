@@ -65,7 +65,7 @@ const ShopScreen = ({ verification_id }) => {
       if (response.ok) {
         const result = await response.json();
         Alert.alert('Success', 'Purchase successful');
-        setCurrCoins(result.currCoins);
+        fetchShopData(); // Refresh shop data after purchase
       } else {
         Alert.alert('Error', 'Purchase failed');
       }
@@ -90,9 +90,9 @@ const ShopScreen = ({ verification_id }) => {
       if (response.ok) {
         const result = await response.json();
         Alert.alert('Success', 'Item equipped successfully');
-        // Refresh equipped items after equipping
-        fetchShopData();
+        fetchShopData(); // Refresh shop data after equipping
       } else {
+        fetchShopData();
         Alert.alert('Success', 'Item equipped successfully');
       }
     } catch (error) {

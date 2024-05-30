@@ -1,6 +1,5 @@
 import * as Location from 'expo-location';
 import polyline from '@mapbox/polyline';
-import Constants from 'expo-constants'; // Import the Constants module
 
 const calcRouteUsingCoords = async (originPlaceId, destinationPlaceId) => {
     const apiKey = process.env.GOOGLE_MAPS_KEY;
@@ -24,7 +23,6 @@ const calcRouteUsingCoords = async (originPlaceId, destinationPlaceId) => {
       return { route: smoothCoordinates, distance: data.routes[0].legs[0].distance.value };
     } catch (error) {
       console.error("Fehler bei der Routenberechnung: ", error);
-      // Optional: Benachrichtigung der UI über den Fehler
       return { route: [], distance: 0 };
     }
   };
@@ -36,7 +34,6 @@ const smoothRoute = (points) => {
       const current = { latitude: points[i][0], longitude: points[i][1] };
       const next = { latitude: points[i + 1][0], longitude: points[i + 1][1] };
       smoothed.push(current);
-      // Erstellen Sie Zwischenpunkte
       for (let j = 1; j <= 10; j++) {
         const interpolated = {
           latitude: current.latitude + (next.latitude - current.latitude) * j / 10,
@@ -101,8 +98,8 @@ const getCurrentLocationWithPlaceId = async () => {
 const generateRandomCoords = (originCoords, radius) => {
   const randomDistance = Math.random() * radius;
   const randomAngle = Math.random() * 2 * Math.PI;
-  const deltaLat = randomDistance * Math.cos(randomAngle) / 111.32; // Approx. km per degree latitude
-  const deltaLng = randomDistance * Math.sin(randomAngle) / (111.32 * Math.cos(originCoords.latitude * Math.PI / 180)); // Approx. km per degree longitude
+  const deltaLat = randomDistance * Math.cos(randomAngle) / 111.32; 
+  const deltaLng = randomDistance * Math.sin(randomAngle) / (111.32 * Math.cos(originCoords.latitude * Math.PI / 180)); 
   const randomCoords = {
       latitude: originCoords.latitude + deltaLat,
       longitude: originCoords.longitude + deltaLng,
@@ -118,17 +115,14 @@ const generateRandomRoute = async (desiredDistance) => {
 
   let attempt = 0;
   while (attempt < 50) {
-      const randomCoords = generateRandomCoords(originCoords, 2); // 2km as a rough max distance
+      const randomCoords = generateRandomCoords(originCoords, 2); 
       const originPlaceId = originCoords.placeId;
       const randomPlaceId = await getPlaceIdFromCoords(randomCoords.latitude, randomCoords.longitude);
 
       const { route, distance } = await calcRouteUsingCoords(originPlaceId, randomPlaceId);
 
-      if (distance >= desiredDistance - 1000 && distance <= desiredDistance + 1000) { // Allow some flexibility
-          console.log(`Suitable route found after ${attempt + 1} attempts`);
+      if (distance >= desiredDistance - 1000 && distance <= desiredDistance + 1000) { 
           return { route, distance };
-      } else {
-          console.log(`Route distance ${distance} meters does not meet the desired range`);
       }
       attempt++;
   }
