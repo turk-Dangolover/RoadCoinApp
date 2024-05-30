@@ -1,24 +1,25 @@
+// SharedRouteComponent.tsx
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
-import GooglePlacesInputComponent from "../manuelle route/GooglePlacesInputComponent";
-import SearchBarDestinationComponent from "../manuelle route/SearchBarDestinationComponent";
-import InfoBoxRouteComponent from "../manuelle route/InfoBoxRouteComponent";
-import BackButtonComponent from "../BackButtonComponent";
+import BackButtonComponent from "./BackButtonComponent";
+import InfoBoxRouteComponent from "./InfoBoxRouteComponent";
 
-const FreieRouteComponent = ({
-  hideFreieRoute,
+const SharedRouteComponent = ({
+  hideRoute,
   onStartPress,
   distance,
   coins,
   isNavigating,
+  children,
 }) => {
   return (
     <>
       <View style={styles.container}>
         <View style={styles.backButtonContainer}>
-          <BackButtonComponent onPress={hideFreieRoute} />
+          <BackButtonComponent onPress={hideRoute} />
         </View>
+        {children}
         <View>
           <InfoBoxRouteComponent distance={distance} coins={coins} />
         </View>
@@ -52,10 +53,6 @@ const styles = StyleSheet.create({
     top: "-15%",
     zIndex: 2,
   },
-  inputContainer: {
-    width: "90%",
-    marginBottom: "15%",
-  },
   buttonContainer: {
     position: "absolute",
     bottom: 20,
@@ -72,4 +69,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FreieRouteComponent;
+export default SharedRouteComponent;

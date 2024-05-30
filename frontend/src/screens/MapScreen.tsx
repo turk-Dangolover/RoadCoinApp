@@ -1,16 +1,14 @@
+// src/screens/MapScreen.tsx
 import { useState, useEffect, useRef } from "react";
-import { View, Button, Text } from "react-native";
+import { View } from "react-native";
 import MapViewComponent from "../components/MapView/MapViewComponent";
 import useRouteConfig from "../hooks/useRouteConfig";
-import * as Location from "expo-location";
 import ManuelleRouteComponent from "../components/MapView/manuelle route/ManuelleRouteComponent";
 import RouteConfigButtonComponent from "../components/MapView/RouteConfigButtonComponent";
-import {
-  calcRouteUsingCoords,
-  getCurrentLocationWithPlaceId,
-} from "../services/routeService";
+import { calcRouteUsingCoords, getPlaceIdFromCoords } from "../services/routeService";
 import SuccessModal from "../components/MapView/manuelle route/SuccessModal";
-import FreieRouteComponent from "../components/MapView/freie route/FreieRouteComponent";
+import SchnelleRouteComponent from "../components/MapView/schnelle route/SchnelleRouteComponent";
+import useLocation from "../hooks/useLocation";
 
 const MapScreen = ({ verification_id }) => {
   const {
@@ -22,17 +20,19 @@ const MapScreen = ({ verification_id }) => {
     destinationLocation,
     toggleVisibility,
     hideManuelleRoute,
+    hideSchnelleRoute,
     isAnyRouteActive,
     distance,
     coins,
     isNavigating,
     setIsNavigating,
-    setCoins,
+    coordinatesSchnelleRoute
   } = useRouteConfig();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [visitedLocations, setVisitedLocations] = useState([]);
   const mapViewRef = useRef(null);
+  const { location, fetchLocation } = useLocation();
 
   const handleStartPress = () => {
     setIsNavigating(true);
@@ -41,26 +41,49 @@ const MapScreen = ({ verification_id }) => {
   };
 
   useEffect(() => {
-    if (isNavigating) {
+    const setDestination = async () => {
+      if (!destinationLocation && routeConfig.SchnelleRoute && coordinatesSchnelleRoute.length > 0) {
+        console.log('Set destination location');
+        const destinationCoords = coordinatesSchnelleRoute[coordinatesSchnelleRoute.length - 1];
+        const placeId = await getPlaceIdFromCoords(destinationCoords.latitude, destinationCoords.longitude);
+        
+        const destination = {
+          ...destinationCoords,
+          place_id: placeId
+        };
+  
+        setDestinationLocation(destination);
+        console.log(destination);
+      }
+    };
+  
+    setDestination();
+  }, [routeConfig.SchnelleRoute, coordinatesSchnelleRoute, destinationLocation]);
+  
+  useEffect(() => {
+    if (isNavigating && destinationLocation) {
       const interval = setInterval(async () => {
-        const location = await getCurrentLocationWithPlaceId();
-        if (location) {
-          checkIfRouteCompleted(location.placeId);
+        const newLocation = await fetchLocation();
+        if (newLocation) {
+          console.log("Current location: ", newLocation.placeId);
+          checkIfRouteCompleted(newLocation.placeId);
+          setVisitedLocations(prevLocations => [...prevLocations, newLocation]);
         }
-      }, 5000);
-
+      }, 2000);
+  
       return () => clearInterval(interval);
     }
-  }, [isNavigating]);
-
+  }, [isNavigating, destinationLocation, fetchLocation]);
+  
   const checkIfRouteCompleted = async (startLocationPlaceId) => {
+    console.log('Hier: ' + JSON.stringify(destinationLocation));
     if (destinationLocation) {
       const distanceToDestination = await calcRouteUsingCoords(
         startLocationPlaceId,
         destinationLocation.place_id
       );
       console.log("Distance to destination:", distanceToDestination.distance);
-      if (distanceToDestination.distance < 7) {
+      if (distanceToDestination.distance <= 15) {
         setIsNavigating(false);
         console.log("Route completed");
         setIsModalVisible(true);
@@ -84,6 +107,7 @@ const MapScreen = ({ verification_id }) => {
     setIsModalVisible(false);
     setStartLocation(null);
     setDestinationLocation(null);
+    setIsNavigating(false);
   };
 
   return (
@@ -91,7 +115,7 @@ const MapScreen = ({ verification_id }) => {
       <MapViewComponent
         route={route}
         mapViewRef={mapViewRef}
-        onVisitedLocationsChange={handleVisitedLocationsChange}
+        onVisitedLocationsChange={setVisitedLocations}
         isNavigating={isNavigating}
         visitedLocations={visitedLocations}
       />
@@ -110,9 +134,9 @@ const MapScreen = ({ verification_id }) => {
         />
       )}
 
-      {routeConfig.FreieRoute && (
-        <FreieRouteComponent
-          hideFreieRoute={hideManuelleRoute}
+      {routeConfig.SchnelleRoute && (
+        <SchnelleRouteComponent
+          hideSchnelleRoute={hideSchnelleRoute}
           onStartPress={handleStartPress}
           distance={distance}
           coins={coins}
@@ -128,9 +152,10 @@ const MapScreen = ({ verification_id }) => {
       )}
       <SuccessModal
         visible={isModalVisible}
-        onClose={() => handleCloseModal()}
+        onClose={handleCloseModal}
         visitedLocations={visitedLocations}
-        verification_id={verification_id}      />
+        verification_id={verification_id}
+      />
     </View>
   );
 };

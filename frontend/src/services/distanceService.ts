@@ -1,4 +1,4 @@
-// services/distanceService.js
+// services/distanceService.ts
 
 export const calculateDistance = (locations) => {
     let totalDistance = 0;

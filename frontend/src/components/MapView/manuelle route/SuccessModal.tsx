@@ -7,7 +7,6 @@ const SuccessModal = ({ visible, onClose, visitedLocations, verification_id }) =
   const totalDistance = Math.ceil(calculateDistance(visitedLocations)); // Auf die nächste ganze Zahl aufrunden
   const coins = Math.ceil(calcGainableCoinsNotAsynch(totalDistance)); // Auf die nächste ganze Zahl aufrunden
   const steps = Math.ceil(totalDistance * 1.7); // Auf die nächste ganze Zahl aufrunden
-  console.log("Total distance:", JSON.stringify(totalDistance));
   
   const data = {
     coins: coins,

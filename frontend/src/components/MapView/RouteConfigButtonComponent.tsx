@@ -14,6 +14,7 @@ const RouteConfigButtonComponent = ({ routeConfig, toggleVisibility }) => {
   const animatedStyle = useAnimatedStyle(() => {
     return {
       height: height.value,
+      paddingTop: open.value ? 30 : 7,  // Dynamisches paddingTop
     };
   });
 
@@ -27,7 +28,7 @@ const RouteConfigButtonComponent = ({ routeConfig, toggleVisibility }) => {
 
 
   const handlePress = () => {
-    height.value = withSpring(!open.value ? 450 : 80, {
+    height.value = withSpring(!open.value ? 220 : 80, {
       damping: 15,
       stiffness: 150
     });
@@ -60,11 +61,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAF9F6',
     borderRadius: 30,
     padding: 10,
+    paddingTop: 20,
     elevation: 5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   button: {
+    //padding von oben
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -75,14 +78,15 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   content: {
-    width: '103%',
-    height: '97%',
-    padding: 5,
-    borderRadius: 30,
+    width: '100%',
+    height: '100%',
+    padding: 0, 
+    borderRadius: 0,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  
 });
 
 export default RouteConfigButtonComponent;

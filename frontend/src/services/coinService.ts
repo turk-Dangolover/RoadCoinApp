@@ -1,3 +1,5 @@
+//coinService.ts
+
 const calcGainableCoins = async (routeDistance) => {
     if(typeof routeDistance !== 'number') {
         // form es zu einer ganzzahligen Zahl
