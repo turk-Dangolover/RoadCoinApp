@@ -117,7 +117,7 @@ const generateRandomRoute = async (desiredDistance) => {
   if (!originCoords) return null;
 
   let attempt = 0;
-  while (attempt < 10) {
+  while (attempt < 50) {
       const randomCoords = generateRandomCoords(originCoords, 2); // 2km as a rough max distance
       const originPlaceId = originCoords.placeId;
       const randomPlaceId = await getPlaceIdFromCoords(randomCoords.latitude, randomCoords.longitude);

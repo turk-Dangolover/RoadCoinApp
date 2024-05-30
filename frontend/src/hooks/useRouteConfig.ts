@@ -8,12 +8,12 @@ const useRouteConfig = () => {
   const [destinationLocation, setDestinationLocation] = useState(null);
   const [routeConfig, setRouteConfig] = useState({
     ManuelleRoute: false,
-    FreieRoute: false,
+    SchnelleRoute: false,
   });
   const [distance, setDistance] = useState(0);
   const [coins, setCoins] = useState(0)
   const [isNavigating, setIsNavigating] = useState(false);
-  const [coordinatesFreieRoute, setCoordinatesFreieRoute] = useState([]);
+  const [coordinatesSchnelleRoute, setCoordinatesSchnelleRoute] = useState([]);
 
   // useEffect Hook zum Berechnen der Route, wenn Start- und Zielort gesetzt sind (manuelle Route)
   useEffect(() => {
@@ -34,21 +34,21 @@ const useRouteConfig = () => {
     }
   }, [startLocation, destinationLocation]); // Überprüfe nur, wenn Start- und Zielort sich ändern
   
-  // useEffect Hook zum Generieren einer Freien Route
+  // useEffect Hook zum Generieren einer Schnellen Route
   useEffect(() => {
-    const getFreieRoute = async () => {
-      console.log('Generiere Freie Route');
+    const getSchnelleRoute = async () => {
+      console.log('Generiere Schnelle Route');
       const coordinates = await generateRandomRoute(3000);
       setDistance(coordinates.distance);
       setRoute(coordinates.route);
-      setCoordinatesFreieRoute(coordinates.route);
+      setCoordinatesSchnelleRoute(coordinates.route);
       setCoins(await calcGainableCoins(coordinates.distance));
     };
 
-    if(routeConfig.FreieRoute){
-      getFreieRoute();
+    if(routeConfig.SchnelleRoute){
+      getSchnelleRoute();
     }
-  }, [routeConfig.FreieRoute]); // Überprüfe nur, wenn Freie Route aktiviert wird
+  }, [routeConfig.SchnelleRoute]); // Überprüfe nur, wenn Schnelle Route aktiviert wird
 
 
 
@@ -72,8 +72,8 @@ const useRouteConfig = () => {
     setDistance(0);
   };
 
-  const hideFreieRoute = () => {
-    setRouteConfig((prevState) => ({ ...prevState, FreieRoute: false }));
+  const hideSchnelleRoute = () => {
+    setRouteConfig((prevState) => ({ ...prevState, SchnelleRoute: false }));
     setRoute([]);
     setStartLocation(null);
     setDestinationLocation(null);
@@ -81,7 +81,7 @@ const useRouteConfig = () => {
     setCoins(0);
     setDistance(0);
     setDestinationLocation(null);
-    setCoordinatesFreieRoute([]);
+    setCoordinatesSchnelleRoute([]);
   }
 
   const isAnyRouteActive = () => {
@@ -97,14 +97,14 @@ const useRouteConfig = () => {
     setDestinationLocation,
     toggleVisibility,
     hideManuelleRoute,
-    hideFreieRoute,
+    hideSchnelleRoute,
     isAnyRouteActive,
     distance,
     coins,
     isNavigating,
     setIsNavigating,
     setCoins,
-    coordinatesFreieRoute,
+    coordinatesSchnelleRoute,
   };
 };
 

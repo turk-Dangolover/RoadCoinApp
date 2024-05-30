@@ -1,16 +1,14 @@
+// src/screens/MapScreen.tsx
 import { useState, useEffect, useRef } from "react";
 import { View } from "react-native";
 import MapViewComponent from "../components/MapView/MapViewComponent";
 import useRouteConfig from "../hooks/useRouteConfig";
 import ManuelleRouteComponent from "../components/MapView/manuelle route/ManuelleRouteComponent";
 import RouteConfigButtonComponent from "../components/MapView/RouteConfigButtonComponent";
-import {
-  calcRouteUsingCoords,
-  getCurrentLocationWithPlaceId,
-  getPlaceIdFromCoords,
-} from "../services/routeService";
+import { calcRouteUsingCoords, getPlaceIdFromCoords } from "../services/routeService";
 import SuccessModal from "../components/MapView/manuelle route/SuccessModal";
-import FreieRouteComponent from "../components/MapView/freie route/FreieRouteComponent";
+import SchnelleRouteComponent from "../components/MapView/schnelle route/SchnelleRouteComponent";
+import useLocation from "../hooks/useLocation";
 
 const MapScreen = ({ verification_id }) => {
   const {
@@ -22,30 +20,31 @@ const MapScreen = ({ verification_id }) => {
     destinationLocation,
     toggleVisibility,
     hideManuelleRoute,
-    hideFreieRoute,
+    hideSchnelleRoute,
     isAnyRouteActive,
     distance,
     coins,
     isNavigating,
     setIsNavigating,
-    coordinatesFreieRoute
+    coordinatesSchnelleRoute
   } = useRouteConfig();
 
-  const [isModalVisible, setIsModalVisible] = useState(false); // State to handle modal visibility
-  const [visitedLocations, setVisitedLocations] = useState([]); // State to store visited locations
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [visitedLocations, setVisitedLocations] = useState([]);
   const mapViewRef = useRef(null);
+  const { location, fetchLocation } = useLocation();
 
   const handleStartPress = () => {
     setIsNavigating(true);
-    setVisitedLocations([]); // Reset visited locations when navigation starts
+    setVisitedLocations([]);
     console.log("Route started");
   };
 
   useEffect(() => {
     const setDestination = async () => {
-      if (!destinationLocation && routeConfig.FreieRoute && coordinatesFreieRoute.length > 0) {
+      if (!destinationLocation && routeConfig.SchnelleRoute && coordinatesSchnelleRoute.length > 0) {
         console.log('Set destination location');
-        const destinationCoords = coordinatesFreieRoute[coordinatesFreieRoute.length - 1];
+        const destinationCoords = coordinatesSchnelleRoute[coordinatesSchnelleRoute.length - 1];
         const placeId = await getPlaceIdFromCoords(destinationCoords.latitude, destinationCoords.longitude);
         
         const destination = {
@@ -59,21 +58,22 @@ const MapScreen = ({ verification_id }) => {
     };
   
     setDestination();
-  }, [routeConfig.FreieRoute, coordinatesFreieRoute, destinationLocation]);
+  }, [routeConfig.SchnelleRoute, coordinatesSchnelleRoute, destinationLocation]);
   
   useEffect(() => {
     if (isNavigating && destinationLocation) {
       const interval = setInterval(async () => {
-        const location = await getCurrentLocationWithPlaceId();
-        if (location) {
-          console.log("Current location: ", location.placeId);
-          checkIfRouteCompleted(location.placeId);
+        const newLocation = await fetchLocation();
+        if (newLocation) {
+          console.log("Current location: ", newLocation.placeId);
+          checkIfRouteCompleted(newLocation.placeId);
+          setVisitedLocations(prevLocations => [...prevLocations, newLocation]);
         }
-      }, 5000);
+      }, 2000);
   
       return () => clearInterval(interval);
     }
-  }, [isNavigating, destinationLocation]);
+  }, [isNavigating, destinationLocation, fetchLocation]);
   
   const checkIfRouteCompleted = async (startLocationPlaceId) => {
     console.log('Hier: ' + JSON.stringify(destinationLocation));
@@ -83,29 +83,22 @@ const MapScreen = ({ verification_id }) => {
         destinationLocation.place_id
       );
       console.log("Distance to destination:", distanceToDestination.distance);
-      if (distanceToDestination.distance < 10) {
+      if (distanceToDestination.distance <= 15) {
         setIsNavigating(false);
         console.log("Route completed");
-        setIsModalVisible(true); // Show the success modal
+        setIsModalVisible(true);
       }
-    }
-  };
-
-  const handleVisitedLocationsChange = (locations) => {
-    if (isNavigating) {
-      // Only update visited locations if navigating
-      setVisitedLocations(locations);
     }
   };
 
   const handleHideManuelleRoute = () => {
     hideManuelleRoute();
-    setVisitedLocations([]); // Reset visited locations when navigation stops
+    setVisitedLocations([]);
   };
 
   const handleCloseModal = () => {
-    setVisitedLocations([]); // Reset visited locations when modal closes
-    setIsModalVisible(false); // Hide modal
+    setVisitedLocations([]);
+    setIsModalVisible(false);
     setStartLocation(null);
     setDestinationLocation(null);
     setIsNavigating(false);
@@ -116,14 +109,14 @@ const MapScreen = ({ verification_id }) => {
       <MapViewComponent
         route={route}
         mapViewRef={mapViewRef}
-        onVisitedLocationsChange={handleVisitedLocationsChange}
-        isNavigating={isNavigating} // Pass isNavigating to MapViewComponent
-        visitedLocations={visitedLocations} // Pass visitedLocations to MapViewComponent
+        onVisitedLocationsChange={setVisitedLocations}
+        isNavigating={isNavigating}
+        visitedLocations={visitedLocations}
       />
 
       {routeConfig.ManuelleRoute && (
         <ManuelleRouteComponent
-          hideManuelleRoute={handleHideManuelleRoute} // Use updated hide function
+          hideManuelleRoute={handleHideManuelleRoute}
           handleLocationSelect={setStartLocation}
           handleLocationSelect2={setDestinationLocation}
           startLocation={startLocation}
@@ -135,9 +128,9 @@ const MapScreen = ({ verification_id }) => {
         />
       )}
 
-      {routeConfig.FreieRoute && (
-        <FreieRouteComponent
-          hideFreieRoute={hideFreieRoute} // Use updated hide function
+      {routeConfig.SchnelleRoute && (
+        <SchnelleRouteComponent
+          hideSchnelleRoute={hideSchnelleRoute}
           onStartPress={handleStartPress}
           distance={distance}
           coins={coins}
@@ -153,9 +146,10 @@ const MapScreen = ({ verification_id }) => {
       )}
       <SuccessModal
         visible={isModalVisible}
-        onClose={() => handleCloseModal()}
-        visitedLocations={visitedLocations} // Pass the visited locations to the modal
-        verification_id={verification_id}      />
+        onClose={handleCloseModal}
+        visitedLocations={visitedLocations}
+        verification_id={verification_id}
+      />
     </View>
   );
 };

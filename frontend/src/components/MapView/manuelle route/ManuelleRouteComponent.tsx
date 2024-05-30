@@ -1,10 +1,8 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Button } from "react-native-elements";
-import BackButtonComponent from "../BackButtonComponent";
 import GooglePlacesInputComponent from "./GooglePlacesInputComponent";
 import SearchBarDestinationComponent from "./SearchBarDestinationComponent";
-import InfoBoxRouteComponent from "./InfoBoxRouteComponent";
+import SharedRouteComponent from "../SharedRouteComponent";
 
 const ManuelleRouteComponent = ({
   hideManuelleRoute,
@@ -18,38 +16,28 @@ const ManuelleRouteComponent = ({
   isNavigating,
 }) => {
   return (
-    <>
-      <View style={styles.container}>
-        <View style={styles.backButtonContainer}>
-          <BackButtonComponent onPress={hideManuelleRoute} />
-        </View>
-        {!isNavigating && (
-          <>
-            <View style={[styles.inputContainer, { zIndex: 3 }]}>
-              <GooglePlacesInputComponent onLocationSelect={handleLocationSelect} />
-            </View>
-            <View style={[styles.inputContainer, { zIndex: 2 }]}>
-              <SearchBarDestinationComponent onLocationSelect={handleLocationSelect2} />
-            </View>
-          </>
-        )}
-        <View>
-          <InfoBoxRouteComponent distance={distance} coins={coins} />
-        </View>
-      </View>
+    <SharedRouteComponent
+      hideRoute={hideManuelleRoute}
+      onStartPress={onStartPress}
+      distance={distance}
+      coins={coins}
+      isNavigating={isNavigating}
+    >
       {!isNavigating && (
-        <View style={styles.buttonContainer}>
-          <Button
-            title="Start"
-            onPress={onStartPress}
-            disabled={!startLocation || !destinationLocation}
-            buttonStyle={styles.startButton}
-            disabledStyle={styles.disabledButton}
-            containerStyle={styles.fullWidthButtonContainer}
-          />
-        </View>
+        <>
+          <View style={[styles.inputContainer, { zIndex: 3 }]}>
+            <GooglePlacesInputComponent
+              onLocationSelect={handleLocationSelect}
+            />
+          </View>
+          <View style={[styles.inputContainer, { zIndex: 2 }]}>
+            <SearchBarDestinationComponent
+              onLocationSelect={handleLocationSelect2}
+            />
+          </View>
+        </>
       )}
-    </>
+    </SharedRouteComponent>
   );
 };
 
