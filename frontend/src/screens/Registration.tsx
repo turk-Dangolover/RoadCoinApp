@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import MessageScreen from './MessageScreen';
 
 export default function Registration({ setActiveScreen }) {
-  const [activeScreen, setActiveScreenLocal] = useState('Registration');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -28,8 +26,8 @@ export default function Registration({ setActiveScreen }) {
       const result = await response.text();
 
       if (response.ok) {
-        Alert.alert("Registrierung erfolgreich");
-        setActiveScreenLocal('MessageScreen');
+        Alert.alert("Registrierung erfolgreich, Bitte Verifizieren Sie ihre Email");
+        setActiveScreen('Login');
       } else {
         Alert.alert("Fehler", result);
       }
@@ -38,10 +36,6 @@ export default function Registration({ setActiveScreen }) {
       Alert.alert('Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.');
     }
   };
-
-  if (activeScreen === 'MessageScreen') {
-    return <MessageScreen />;
-  }
 
   return (
     <View style={styles.container}>
