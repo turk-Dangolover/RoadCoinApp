@@ -41,10 +41,13 @@ const ProfileScreen = ({ verification_id, changeScreen }) => {
     );
   }
 
+    const equippedTitle = userData.equippedItems?.Titel?.itemname;
+    const equippedColor = userData.equippedItems?.Color?.itemname;
+
   return (
     <View style={styles.container}>
       <Text style={styles.username}>{userData.username}</Text>
-      <Text style={styles.title}>{userData.title}</Text>
+      {equippedTitle && <Text style={[styles.title, { color: equippedColor || '#7d7d7d' }]}>{equippedTitle}</Text>}
       <Text style={styles.allTimeStats}>ALL TIME STATS</Text>
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
@@ -97,7 +100,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    color: '#7d7d7d',
     marginBottom: 10,
   },
   allTimeStats: {

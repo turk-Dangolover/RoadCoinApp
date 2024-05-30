@@ -32,46 +32,64 @@ public class DbShopService {
 
     public Map<String, Object> buyItem(String verificationId, int itemNumber) {
         try {
-            String getItemSql = "SELECT price, stockQuantity, itemName FROM Shop WHERE itemNumber = ?";
+            // Fetch item details
+            String getItemSql = "SELECT price, stockQuantity, itemName, category FROM Shop WHERE itemNumber = ?";
             Map<String, Object> item = jdbcTemplate.queryForMap(getItemSql, itemNumber);
             int price = (int) item.get("price");
             int stockQuantity = (int) item.get("stockQuantity");
             String itemName = (String) item.get("itemName");
+            String category = (String) item.get("category");
     
             if (stockQuantity <= 0) {
                 logger.error("Item is out of stock");
                 return null;
             }
     
-            String getUserSql = "SELECT currCoins, title FROM Users WHERE verification_id = ?";
+            // Fetch user details
+            String getUserSql = "SELECT currCoins FROM Users WHERE verification_id = ?";
             Map<String, Object> user = jdbcTemplate.queryForMap(getUserSql, verificationId);
             int currCoins = (int) user.get("currCoins");
-            String userTitle = (String) user.get("title");
-    
-            if (userTitle != null && userTitle.equals(itemName)) {
-                logger.error("You already have this item: " + itemName);
-                return null;
-            }
     
             if (currCoins < price) {
                 logger.error("Insufficient coins");
                 return null;
             }
     
-            String updateUserSql = "UPDATE Users SET currCoins = currCoins - ?, title = ? WHERE verification_id = ?";
-            jdbcTemplate.update(updateUserSql, price, itemName, verificationId);
+            // Check if user already owns the item
+            String checkOwnershipSql = "SELECT COUNT(*) FROM UserItems WHERE verification_id = ? AND itemNumber = ?";
+            @SuppressWarnings("deprecation")
+            int ownershipCount = jdbcTemplate.queryForObject(checkOwnershipSql, new Object[]{verificationId, itemNumber}, Integer.class);
     
+            if (ownershipCount > 0) {
+                logger.error("User already owns this item: " + itemName);
+                return null;
+            }
+    
+            // Update user's coin balance
+            String updateUserSql = "UPDATE Users SET currCoins = currCoins - ? WHERE verification_id = ?";
+            jdbcTemplate.update(updateUserSql, price, verificationId);
+    
+            // Decrease the item's stock quantity
             String updateStockSql = "UPDATE Shop SET stockQuantity = stockQuantity - 1 WHERE itemNumber = ?";
             jdbcTemplate.update(updateStockSql, itemNumber);
     
+            // Add the item to UserItems table
+            String insertOwnershipSql = "INSERT INTO UserItems (verification_id, itemNumber, isEquipped) VALUES (?, ?, FALSE)";
+            jdbcTemplate.update(insertOwnershipSql, verificationId, itemNumber);
+    
+            // Prepare response
             Map<String, Object> response = new HashMap<>();
             response.put("currCoins", currCoins - price);
             response.put("itemNumber", itemNumber);
+            response.put("itemName", itemName);
+            response.put("category", category);
+    
             return response;
         } catch (Exception e) {
             logger.error("Error during purchase: {}", e.getMessage());
             return null;
         }
     }
+    
     
 }
