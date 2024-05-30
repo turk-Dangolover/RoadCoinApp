@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
 export default function LoginScreen({ setVerificationId, setActiveScreen }) {
   const [username, setUsername] = useState('');
@@ -20,7 +20,12 @@ export default function LoginScreen({ setVerificationId, setActiveScreen }) {
         },
         body: JSON.stringify(data),
       });
-      
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Received non-JSON response');
+      }
+
       const result = await response.json();
 
       if (response.ok) {
@@ -28,11 +33,19 @@ export default function LoginScreen({ setVerificationId, setActiveScreen }) {
         setActiveScreen('Map');
         console.log("Verification ID:", result.verification_id);
       } else {
-        alert(result);
+        alert(result.message || 'Login failed. Please try again.');
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('Login failed. Please try again.');
+      if (error.message === 'Received non-JSON response') {
+        console.log('Specific error: Received non-JSON response');
+        Alert.alert('Error', 'Login failed. Please try again.');
+      } else if (error.message.includes('Network request failed')) {
+        console.log('Specific error: Network request failed');
+        Alert.alert('Error', 'Network error. Please check your connection and try again.');
+      } else {
+        console.log('Specific error:', error.message);
+        Alert.alert('Error', 'Login failed. Please try again.');
+      }
     }
   };
 

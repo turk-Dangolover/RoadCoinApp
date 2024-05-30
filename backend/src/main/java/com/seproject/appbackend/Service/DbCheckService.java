@@ -16,18 +16,15 @@ public class DbCheckService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public String getVerificationId(String username, String password) {
+    public String getVerificationId(String username, String hashedPassword) {
         try {
-            String sql = "SELECT verification_id FROM users WHERE username = ? AND password = ?";
-            
+            String sql = "SELECT verification_id FROM Users WHERE username = ? AND password = ?";
             @SuppressWarnings("deprecation")
-            String verification_id = jdbcTemplate.queryForObject(sql, new Object[]{username, password}, String.class);
-            
+            String verification_id = jdbcTemplate.queryForObject(sql, new Object[]{username, hashedPassword}, String.class);
             return verification_id;
         } catch (Exception e) {
             logger.error("Error during user authentication: {}", e.getMessage());
             return null;
         }
     }
-    
 }

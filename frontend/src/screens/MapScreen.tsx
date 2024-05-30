@@ -30,17 +30,16 @@ const MapScreen = ({ verification_id }) => {
     setCoins,
   } = useRouteConfig();
 
-  const [isModalVisible, setIsModalVisible] = useState(false); // State to handle modal visibility
-  const [visitedLocations, setVisitedLocations] = useState([]); // State to store visited locations
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [visitedLocations, setVisitedLocations] = useState([]);
   const mapViewRef = useRef(null);
 
   const handleStartPress = () => {
     setIsNavigating(true);
-    setVisitedLocations([]); // Reset visited locations when navigation starts
+    setVisitedLocations([]);
     console.log("Route started");
   };
 
-  // useEffect Hook zum Abfragen der aktuellen Position in einem Intervall
   useEffect(() => {
     if (isNavigating) {
       const interval = setInterval(async () => {
@@ -64,26 +63,25 @@ const MapScreen = ({ verification_id }) => {
       if (distanceToDestination.distance < 7) {
         setIsNavigating(false);
         console.log("Route completed");
-        setIsModalVisible(true); // Show the success modal
+        setIsModalVisible(true);
       }
     }
   };
 
   const handleVisitedLocationsChange = (locations) => {
     if (isNavigating) {
-      // Only update visited locations if navigating
       setVisitedLocations(locations);
     }
   };
 
   const handleHideManuelleRoute = () => {
     hideManuelleRoute();
-    setVisitedLocations([]); // Reset visited locations when navigation stops
+    setVisitedLocations([]);
   };
 
   const handleCloseModal = () => {
-    setVisitedLocations([]); // Reset visited locations when modal closes
-    setIsModalVisible(false); // Hide modal
+    setVisitedLocations([]);
+    setIsModalVisible(false);
     setStartLocation(null);
     setDestinationLocation(null);
   };
@@ -94,13 +92,13 @@ const MapScreen = ({ verification_id }) => {
         route={route}
         mapViewRef={mapViewRef}
         onVisitedLocationsChange={handleVisitedLocationsChange}
-        isNavigating={isNavigating} // Pass isNavigating to MapViewComponent
-        visitedLocations={visitedLocations} // Pass visitedLocations to MapViewComponent
+        isNavigating={isNavigating}
+        visitedLocations={visitedLocations}
       />
 
       {routeConfig.ManuelleRoute && (
         <ManuelleRouteComponent
-          hideManuelleRoute={handleHideManuelleRoute} // Use updated hide function
+          hideManuelleRoute={handleHideManuelleRoute}
           handleLocationSelect={setStartLocation}
           handleLocationSelect2={setDestinationLocation}
           startLocation={startLocation}
@@ -114,7 +112,7 @@ const MapScreen = ({ verification_id }) => {
 
       {routeConfig.FreieRoute && (
         <FreieRouteComponent
-          hideFreieRoute={hideManuelleRoute} // Use updated hide function
+          hideFreieRoute={hideManuelleRoute}
           onStartPress={handleStartPress}
           distance={distance}
           coins={coins}
@@ -131,8 +129,8 @@ const MapScreen = ({ verification_id }) => {
       <SuccessModal
         visible={isModalVisible}
         onClose={() => handleCloseModal()}
-        visitedLocations={visitedLocations} // Pass the visited locations to the modal
-        verification_id={undefined}      />
+        visitedLocations={visitedLocations}
+        verification_id={verification_id}      />
     </View>
   );
 };

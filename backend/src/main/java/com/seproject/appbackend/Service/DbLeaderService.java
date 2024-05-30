@@ -21,7 +21,7 @@ public class DbLeaderService {
 
     public List<Map<String, Object>> getLeaderboard() {
         try {
-            String sql = "SELECT username, allCoins FROM Users ORDER BY allCoins DESC LIMIT 50";
+            String sql = "SELECT username, allCoins, title FROM Users ORDER BY allCoins DESC LIMIT 50";
             return jdbcTemplate.queryForList(sql);
         } catch (Exception e) {
             logger.error("Error retrieving leaderboard: {}", e.getMessage());
@@ -31,7 +31,7 @@ public class DbLeaderService {
 
     public Map<String, Object> getUserRank(String verification_id) {
         try {
-            String sql = "SELECT username, allCoins, rank FROM (SELECT username, allCoins, verification_id, RANK() OVER (ORDER BY allCoins DESC) as rank FROM Users) as ranked_users WHERE verification_id = ?";
+            String sql = "SELECT username, allCoins, rank, title FROM (SELECT username, allCoins, verification_id, title, RANK() OVER (ORDER BY allCoins DESC) as rank FROM Users) as ranked_users WHERE verification_id = ?";
             return jdbcTemplate.queryForMap(sql, verification_id);
         } catch (Exception e) {
             logger.error("Error retrieving user rank: {}", e.getMessage());

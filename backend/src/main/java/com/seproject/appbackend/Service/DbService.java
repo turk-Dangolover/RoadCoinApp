@@ -1,10 +1,7 @@
 package com.seproject.appbackend.Service;
 
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
 import org.springframework.stereotype.Service;
 import org.springframework.jdbc.core.JdbcTemplate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,25 +16,13 @@ public class DbService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public boolean saveDataToDb(String email, String username, String password, Boolean verify, String verification_id) throws SQLException {
+    public boolean saveDataToDb(String email, String username, String password, Boolean verify, String verification_id) {
         try {
-            String sql = "INSERT INTO users (username, email, password, verify, verification_id) " +
-                    "VALUES (?, ?, ?, ?, ?)";
-
-            jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                preparedStatement.setString(1, username);
-                preparedStatement.setString(2, email);
-                preparedStatement.setString(3, password);
-                preparedStatement.setBoolean(4, verify);
-                preparedStatement.setString(5, verification_id);
-                return preparedStatement;
-            });
-            logger.info("Data was saved in the db!");
+            String sql = "INSERT INTO Users (email, username, password, verify, verification_id) VALUES (?, ?, ?, ?, ?)";
+            jdbcTemplate.update(sql, email, username, password, verify, verification_id);
             return true;
-
         } catch (Exception e) {
-            logger.error("Failed to insert user info into db!: {}", e.getMessage());
+            logger.error("Error saving data to database: {}", e.getMessage());
             return false;
         }
     }

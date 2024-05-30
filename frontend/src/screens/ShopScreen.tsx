@@ -66,7 +66,7 @@ const ShopScreen = ({ verification_id }) => {
       if (response.ok) {
         const result = await response.json();
         Alert.alert('Success', 'Purchase successful');
-        setCurrCoins(result.currCoins); // Use result.currCoins to update currCoins
+        setCurrCoins(result.currCoins);
       } else {
         Alert.alert('Error', 'Purchase failed');
       }

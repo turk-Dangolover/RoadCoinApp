@@ -16,11 +16,11 @@ public class DbChangeEmail {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public boolean changeUserEmail(String verification_id, String password, String newEmail) {
+    public boolean changeUserEmail(String verification_id, String hashedPassword, String newEmail) {
         try {
             String checkPasswordSql = "SELECT COUNT(*) FROM users WHERE verification_id = ? AND password = ?";
             @SuppressWarnings("deprecation")
-            int count = jdbcTemplate.queryForObject(checkPasswordSql, new Object[]{verification_id, password}, Integer.class);
+            int count = jdbcTemplate.queryForObject(checkPasswordSql, new Object[]{verification_id, hashedPassword}, Integer.class);
 
             if (count == 1) {
                 String updateEmailSql = "UPDATE users SET email = ? WHERE verification_id = ?";

@@ -37,27 +37,33 @@ public class DbShopService {
             int price = (int) item.get("price");
             int stockQuantity = (int) item.get("stockQuantity");
             String itemName = (String) item.get("itemName");
-
+    
             if (stockQuantity <= 0) {
                 logger.error("Item is out of stock");
                 return null;
             }
-
-            String getUserSql = "SELECT currCoins FROM Users WHERE verification_id = ?";
-            @SuppressWarnings("deprecation")
-            int currCoins = jdbcTemplate.queryForObject(getUserSql, new Object[]{verificationId}, Integer.class);
-
+    
+            String getUserSql = "SELECT currCoins, title FROM Users WHERE verification_id = ?";
+            Map<String, Object> user = jdbcTemplate.queryForMap(getUserSql, verificationId);
+            int currCoins = (int) user.get("currCoins");
+            String userTitle = (String) user.get("title");
+    
+            if (userTitle != null && userTitle.equals(itemName)) {
+                logger.error("You already have this item: " + itemName);
+                return null;
+            }
+    
             if (currCoins < price) {
                 logger.error("Insufficient coins");
                 return null;
             }
-
+    
             String updateUserSql = "UPDATE Users SET currCoins = currCoins - ?, title = ? WHERE verification_id = ?";
             jdbcTemplate.update(updateUserSql, price, itemName, verificationId);
-
+    
             String updateStockSql = "UPDATE Shop SET stockQuantity = stockQuantity - 1 WHERE itemNumber = ?";
             jdbcTemplate.update(updateStockSql, itemNumber);
-
+    
             Map<String, Object> response = new HashMap<>();
             response.put("currCoins", currCoins - price);
             response.put("itemNumber", itemNumber);
@@ -67,4 +73,5 @@ public class DbShopService {
             return null;
         }
     }
+    
 }

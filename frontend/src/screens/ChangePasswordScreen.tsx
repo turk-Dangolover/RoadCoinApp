@@ -1,4 +1,3 @@
-// src/screens/ChangePasswordScreen.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -24,11 +23,17 @@ const ChangePasswordScreen = ({ verification_id, changeScreen }) => {
         body: JSON.stringify(data),
       });
 
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Received non-JSON response');
+      }
+
+      const result = await response.json();
+
       if (response.ok) {
-        Alert.alert('Success', 'Passwort wurde erfolgreich geändert');
-        changeScreen('Profile'); // Navigate back to Profile
+        Alert.alert('Success', result.message || 'Passwort wurde erfolgreich geändert');
+        changeScreen('Profile');
       } else {
-        const result = await response.json();
         Alert.alert('Error', result.message || 'Failed to change password');
       }
     } catch (error) {

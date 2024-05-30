@@ -12,7 +12,7 @@ const MessageScreen = () => {
   const renderActiveScreen = () => {
     switch (activeScreen) {
       case 'Hub':
-        return <LoginScreen />;
+        return <LoginScreen setVerificationId={undefined} setActiveScreen={undefined} />;
       default:
         return (
           <View style={styles.container}>

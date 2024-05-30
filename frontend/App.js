@@ -58,7 +58,7 @@ export default function App() {
       <View style={styles.content}>
         {renderActiveScreen()}
       </View>
-      {(activeScreen !== 'Login' && activeScreen !== 'Registration') && (
+      {activeScreen !== 'Login' && activeScreen !== 'Registration' && (
         <View style={styles.navBar}>
           <TouchableOpacity onPress={() => changeScreen('Hub')} style={styles.navItem}>
             <MaterialCommunityIcons name="home" size={24} color={activeScreen === 'Hub' ? '#3998E8' : 'gray'} />

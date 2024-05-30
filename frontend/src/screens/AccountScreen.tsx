@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     marginBottom: 15,
-    elevation: 1, // Adds a subtle shadow to the options
+    elevation: 1,
   },
   optionIcon: {
     marginRight: 15,

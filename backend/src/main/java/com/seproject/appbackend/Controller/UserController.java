@@ -1,5 +1,6 @@
 package com.seproject.appbackend.Controller;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.util.List;
@@ -7,22 +8,17 @@ import java.util.Map;
 import java.util.UUID;
 import com.seproject.appbackend.DTO.Users;
 import com.seproject.appbackend.DTO.Change;
-import com.seproject.appbackend.DTO.PurchaseRequest;
 import com.seproject.appbackend.DTO.Stats;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-// import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-// import java.io.File;
 import java.io.IOException;
-// import java.io.FileInputStream;
-// import java.io.FileOutputStream;
-
-import com.lowagie.text.DocumentException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import com.seproject.appbackend.Service.DbService;
 import com.seproject.appbackend.Service.DbShopService;
 import com.seproject.appbackend.Service.DbStatsService;
@@ -35,7 +31,6 @@ import com.seproject.appbackend.Service.MailSender;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-// import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -135,14 +130,15 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/shop/buy")
-    public ResponseEntity<Map<String, Object>> buyItem(@RequestBody Map<String, Object> request) {
-        String verificationId = (String) request.get("verificationId");
-        int itemNumber = (int) request.get("itemNumber");
+    public ResponseEntity<Object> buyItem(@RequestBody Map<String, Object> payload) {
+        String verificationId = (String) payload.get("verificationId");
+        int itemNumber = (int) payload.get("itemNumber");
+
         Map<String, Object> result = dbShopService.buyItem(verificationId, itemNumber);
         if (result != null) {
             return ResponseEntity.ok(result);
         } else {
-            return ResponseEntity.status(400).body(null);
+            return ResponseEntity.status(400).body("Purchase failed");
         }
     }
 
@@ -163,25 +159,36 @@ public class UserController {
     @CrossOrigin
     @PostMapping("/change/email")
     public ResponseEntity<Object> changeEmail(@RequestBody Change change) {
-        boolean isEmailChanged = dbChangeEmail.changeUserEmail(change.getVerification_id(), change.getPassword(), change.getNewEmail());
-        if (isEmailChanged) {
-            return ResponseEntity.ok().body("E-mail changed successfully");
-        } else {
-            return ResponseEntity.status(401).body("Password is incorrect");
+        try {
+            String hashedPassword = hashPassword(change.getPassword());
+            boolean isEmailChanged = dbChangeEmail.changeUserEmail(change.getVerification_id(), hashedPassword, change.getNewEmail());
+            if (isEmailChanged) {
+                return ResponseEntity.ok().body(Collections.singletonMap("message", "E-mail changed successfully"));
+            } else {
+                return ResponseEntity.status(401).body(Collections.singletonMap("message", "Password is incorrect"));
+            }
+        } catch (NoSuchAlgorithmException e) {
+            return ResponseEntity.status(500).body(Collections.singletonMap("message", "Error processing request"));
         }
     }
-
-
+    
     @CrossOrigin
     @PostMapping("/change/userData")
     public ResponseEntity<Object> changeUserData(@RequestBody Change change) {
-        boolean isPasswordChanged = dbChangePW.changeUserData(change.getVerification_id(), change.getOldPassword(), change.getNewPassword());
-        if (isPasswordChanged) {
-            return ResponseEntity.ok().body("Password changed successfully");
-        } else {
-            return ResponseEntity.status(401).body("Old password is incorrect");
+        try {
+            String hashedPassword = hashPassword(change.getOldPassword());
+            String hashedNewPassword = hashPassword(change.getNewPassword());
+            boolean isPasswordChanged = dbChangePW.changeUserData(change.getVerification_id(), hashedPassword, hashedNewPassword);
+            if (isPasswordChanged) {
+                return ResponseEntity.ok().body(Map.of("message", "Password changed successfully"));
+            } else {
+                return ResponseEntity.status(401).body(Map.of("message", "Old password is incorrect"));
+            }
+        } catch (NoSuchAlgorithmException e) {
+            return ResponseEntity.status(500).body(Map.of("message", "Error processing request"));
         }
     }
+    
 
     @CrossOrigin
     @PostMapping("/get/userData")
@@ -193,20 +200,6 @@ public class UserController {
             return ResponseEntity.status(401).body("Failed to fetch user data");
         }
     }
-   
-
-    @CrossOrigin
-    @PostMapping("/look")
-    public ResponseEntity<Object> look(@RequestBody Users users) {
-        String verification_id = dbCheckService.getVerificationId(users.getUsername(), users.getPassword());
-        if (verification_id != null) {
-            Map<String, Object> responseData = new HashMap<>();
-            responseData.put("verification_id", verification_id);
-            return ResponseEntity.ok(responseData);
-        } else {
-            return ResponseEntity.status(401).body("Invalid username or password");
-        }
-    }
 
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
 
@@ -214,11 +207,38 @@ public class UserController {
         Pattern pattern = Pattern.compile(EMAIL_REGEX);
         return pattern.matcher(email).matches();
     }
+
+    private String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashedPasswordBytes = md.digest(password.getBytes());
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hashedPasswordBytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
+    @CrossOrigin
+    @PostMapping("/look")
+    public ResponseEntity<Object> login(@RequestBody Users users) {
+        try {
+            String hashedPassword = hashPassword(users.getPassword());
+            String verification_id = dbCheckService.getVerificationId(users.getUsername(), hashedPassword);
+            if (verification_id != null) {
+                Map<String, Object> responseData = new HashMap<>();
+                responseData.put("verification_id", verification_id);
+                return ResponseEntity.ok(responseData);
+            } else {
+                return ResponseEntity.status(401).body("Invalid username or password");
+            }
+        } catch (NoSuchAlgorithmException e) {
+            return ResponseEntity.status(500).body("Error processing request");
+        }
+    }
     
     @CrossOrigin
     @PostMapping("/save")
-    public ResponseEntity<String> save(@RequestBody Users users) throws IOException, SQLException, DocumentException {
-
+    public ResponseEntity<String> save(@RequestBody Users users) throws IOException, SQLException {
         if (!isValidEmail(users.getEmail())) {
             return ResponseEntity.status(400).body("Invalid email format");
         }
@@ -227,12 +247,17 @@ public class UserController {
         Boolean verify = false;
         String currURL = "http://192.168.178.21:8080/";
 
-        boolean insertInfo = dbService.saveDataToDb(users.getEmail(), users.getUsername(), users.getPassword(), verify, verification_id);
-        if (insertInfo) {
+        try {
+            String hashedPassword = hashPassword(users.getPassword());
+            boolean insertInfo = dbService.saveDataToDb(users.getEmail(), users.getUsername(), hashedPassword, verify, verification_id);
             mailSender.sendDataMail(users.getEmail(), users.getUsername(), currURL, verification_id);
-            return ResponseEntity.ok("Registration successful");
-        } else {
-            return ResponseEntity.status(401).body("Invalid Info, try again");
+            if (insertInfo) {
+                return ResponseEntity.ok("Registration successful");
+            } else {
+                return ResponseEntity.status(401).body("Invalid Info, try again");
+            }
+        } catch (NoSuchAlgorithmException e) {
+            return ResponseEntity.status(500).body("Error processing request");
         }
     }
 

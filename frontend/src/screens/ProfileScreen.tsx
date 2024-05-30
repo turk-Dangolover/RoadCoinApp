@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons'; // Importieren Sie die benötigten Icons
+import { FontAwesome5 } from '@expo/vector-icons';
 
 const ProfileScreen = ({ verification_id, changeScreen }) => {
   const [userData, setUserData] = useState(null);
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: '#EBF2F6',
-    paddingTop: 60, // Abstand vom oberen Rand
+    paddingTop: 60,
   },
   username: {
     marginTop: 60,
@@ -106,11 +106,11 @@ const styles = StyleSheet.create({
     color: '#252826',
     marginBottom: 10,
     marginTop: 50,
-    alignSelf: 'flex-start', // Links ausrichten
-    marginLeft: 25, // Abstand zum linken Rand
+    alignSelf: 'flex-start',
+    marginLeft: 25,
   },
   statsContainer: {
-    backgroundColor: '#fff', // Weiß
+    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 20,
     width: '90%',
@@ -128,13 +128,13 @@ const styles = StyleSheet.create({
   },
   statName: {
     fontSize: 18,
-    color: '#000', // Schwarz
-    fontWeight: 'bold', // Fett
+    color: '#000',
+    fontWeight: 'bold',
     marginBottom: 5,
   },
   statValue: {
     fontSize: 18,
-    color: '#C7C7C7', // Hellgrau
+    color: '#C7C7C7',
   },
   accountButton: {
     marginTop: 20,

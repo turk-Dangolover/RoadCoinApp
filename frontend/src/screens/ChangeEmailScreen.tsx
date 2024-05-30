@@ -1,4 +1,3 @@
-// src/screens/ChangeEmailScreen.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -24,11 +23,12 @@ const ChangeEmailScreen = ({ verification_id, changeScreen }) => {
         body: JSON.stringify(data),
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        Alert.alert('Success', 'E-Mail wurde erfolgreich geändert');
-        changeScreen('Profile'); // Navigate back to Profile
+        Alert.alert('Success', result.message);
+        changeScreen('Profile');
       } else {
-        const result = await response.json();
         Alert.alert('Error', result.message || 'Failed to change email');
       }
     } catch (error) {

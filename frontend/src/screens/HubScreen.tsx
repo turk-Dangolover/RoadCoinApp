@@ -47,13 +47,14 @@ const HubScreen = ({ verification_id }) => {
     <View style={styles.row}>
       <Text style={styles.rank}>{index + 1}</Text>
       <Text style={styles.username}>{item.username}</Text>
+      <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.coins}>{item.allcoins}</Text>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Top 50 Leaderboard</Text>
+      <Text style={styles.titel}>Top 50 Leaderboard</Text>
       <FlatList
         data={leaderboard}
         renderItem={renderItem}
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#EBF2F6',
   },
-  title: {
+  titel: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#252826',
@@ -104,6 +105,10 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 18,
     color: '#252826',
+  },
+  title: {
+    fontSize: 18,
+    color: '#7d7d7d',
   },
   coins: {
     fontSize: 18,

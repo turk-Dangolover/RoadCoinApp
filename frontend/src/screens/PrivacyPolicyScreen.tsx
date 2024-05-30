@@ -1,4 +1,3 @@
-// src/screens/PrivacyPolicyScreen.js
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
