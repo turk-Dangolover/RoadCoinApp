@@ -22,17 +22,14 @@ public class DbShopService {
 
     public Map<String, Object> getShopItems(String verificationId) {
         try {
-            // Fetch all shop items
             String shopSql = "SELECT * FROM Shop";
             List<Map<String, Object>> shopItems = jdbcTemplate.queryForList(shopSql);
     
-            // Fetch all items owned by the user
             String ownedItemsSql = "SELECT si.itemNumber, s.itemName, s.category, si.isEquipped " +
                                    "FROM UserItems si JOIN Shop s ON si.itemNumber = s.itemNumber " +
                                    "WHERE si.verification_id = ?";
             List<Map<String, Object>> ownedItems = jdbcTemplate.queryForList(ownedItemsSql, verificationId);
     
-            // Separate equipped items
             Map<String, Object> equippedItems = new HashMap<>();
             for (Map<String, Object> item : ownedItems) {
                 boolean isEquipped = (boolean) item.get("isEquipped");
@@ -43,7 +40,6 @@ public class DbShopService {
                 }
             }
     
-            // Prepare the result
             Map<String, Object> result = new HashMap<>();
             result.put("allShopItems", shopItems);
             result.put("ownedItems", ownedItems);
@@ -60,7 +56,6 @@ public class DbShopService {
 
     public Map<String, Object> buyItem(String verificationId, int itemNumber) {
         try {
-            // Fetch item details
             String getItemSql = "SELECT price, stockQuantity, itemName, category FROM Shop WHERE itemNumber = ?";
             Map<String, Object> item = jdbcTemplate.queryForMap(getItemSql, itemNumber);
             int price = (int) item.get("price");
@@ -73,7 +68,6 @@ public class DbShopService {
                 return null;
             }
     
-            // Fetch user details
             String getUserSql = "SELECT currCoins FROM Users WHERE verification_id = ?";
             Map<String, Object> user = jdbcTemplate.queryForMap(getUserSql, verificationId);
             int currCoins = (int) user.get("currCoins");
@@ -83,13 +77,11 @@ public class DbShopService {
                 return null;
             }
     
-            // Check if user already owns the item
             String checkOwnershipSql = "SELECT COUNT(*) FROM UserItems WHERE verification_id = ? AND itemNumber = ?";
             @SuppressWarnings("deprecation")
             int ownershipCount = jdbcTemplate.queryForObject(checkOwnershipSql, new Object[]{verificationId, itemNumber}, Integer.class);
     
             if (ownershipCount > 0) {
-            //If user already owns the item, equip it and un-equip all other items in the same category
             String unequipSql = "UPDATE UserItems SET isequipped = false WHERE verification_id = ? AND itemNumber IN (SELECT itemNumber FROM Shop WHERE category = ?)";
             jdbcTemplate.update(unequipSql, verificationId, category);
             
@@ -98,19 +90,15 @@ public class DbShopService {
                 return null;
             }
     
-            // Update user's coin balance
             String updateUserSql = "UPDATE Users SET currCoins = currCoins - ? WHERE verification_id = ?";
             jdbcTemplate.update(updateUserSql, price, verificationId);
     
-            // Decrease the item's stock quantity
             String updateStockSql = "UPDATE Shop SET stockQuantity = stockQuantity - 1 WHERE itemNumber = ?";
             jdbcTemplate.update(updateStockSql, itemNumber);
     
-            // Add the item to UserItems table
             String insertOwnershipSql = "INSERT INTO UserItems (verification_id, itemNumber, isEquipped) VALUES (?, ?, FALSE)";
             jdbcTemplate.update(insertOwnershipSql, verificationId, itemNumber);
     
-            // Prepare response
             Map<String, Object> response = new HashMap<>();
             response.put("currCoins", currCoins - price);
             response.put("itemNumber", itemNumber);

@@ -32,16 +32,16 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start', // Änderung hier
+    justifyContent: 'flex-start', 
     width: '100%', 
     height: '100%',
-    paddingLeft: 20, // Fügen Sie etwas Abstand links hinzu, damit es nicht direkt am Rand ist.
+    paddingLeft: 20, 
   },
 
   buttonText: {
     color: 'black',
-    fontSize: 23,  // Schriftgröße leicht erhöht
-    marginLeft: 15,  // Abstand erhöht
+    fontSize: 23,  
+    marginLeft: 15,  
     textAlign: 'left',
   },
   
@@ -50,7 +50,7 @@ separator: {
   borderBottomWidth: 1,
   width: '90%',
   alignSelf: 'center',
-  marginVertical: 10,  // Vertikaler Abstand hinzugefügt
+  marginVertical: 10,  
 },
 
 });

@@ -65,7 +65,7 @@ const ShopScreen = ({ verification_id }) => {
       if (response.ok) {
         const result = await response.json();
         Alert.alert('Success', 'Purchase successful');
-        fetchShopData(); // Refresh shop data after purchase
+        fetchShopData(); 
       } else {
         Alert.alert('Error', 'Purchase failed');
       }
@@ -90,7 +90,7 @@ const ShopScreen = ({ verification_id }) => {
       if (response.ok) {
         const result = await response.json();
         Alert.alert('Success', 'Item equipped successfully');
-        fetchShopData(); // Refresh shop data after equipping
+        fetchShopData(); 
       } else {
         fetchShopData();
         Alert.alert('Success', 'Item equipped successfully');

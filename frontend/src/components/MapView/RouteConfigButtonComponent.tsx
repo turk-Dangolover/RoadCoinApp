@@ -8,13 +8,13 @@ import Animated, {
 import MenuListButtonComponent from './MenuListButtonComponent';
 
 const RouteConfigButtonComponent = ({ routeConfig, toggleVisibility }) => {
-  const height = useSharedValue(80);  // Default height
-  const open = useSharedValue(false);  // Default state
+  const height = useSharedValue(80);  
+  const open = useSharedValue(false);  
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
       height: height.value,
-      paddingTop: open.value ? 30 : 7,  // Dynamisches paddingTop
+      paddingTop: open.value ? 30 : 7,  
     };
   });
 
@@ -22,7 +22,7 @@ const RouteConfigButtonComponent = ({ routeConfig, toggleVisibility }) => {
     return {
       opacity: open.value ? 1 : 0,
       display: open.value ? 'flex' : 'none',
-      transform: [{ scale: open.value ? 1 : 0.5 }], // Skaliert das Element von 0.5 bis 1
+      transform: [{ scale: open.value ? 1 : 0.5 }], 
     };
   });
 

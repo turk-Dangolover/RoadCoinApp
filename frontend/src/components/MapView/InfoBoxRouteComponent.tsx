@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons'; // Installiere dies, wenn noch nicht installiert
-
+import { FontAwesome } from '@expo/vector-icons'; 
 const InfoBoxRouteComponent = ({ distance, coins }) => {
 
   return (

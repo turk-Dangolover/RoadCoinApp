@@ -45,7 +45,7 @@ const SearchBarDestinationComponent = ({ onLocationSelect }) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: '15%', // Anpassen, um Platz für das erste Suchfeld zu lassen
+    top: '15%', 
     width: '80%',
     padding: 10,
     left: '10%',
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   listView: {
     position: 'absolute',
-    top: 38, // Direkt unterhalb des TextInputs platzieren
+    top: 38, 
     left: 0,
     right: 0,
     zIndex: 3,

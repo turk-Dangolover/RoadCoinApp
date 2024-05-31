@@ -25,19 +25,16 @@ public class DbStatsService {
 
 public Map<String, Object> getStats(String verificationId) {
     try {
-        // Fetch user basic stats
         String userSql = "SELECT username, allcoins, allrout, allsteps FROM users WHERE verification_id = ?";
         logger.info("Executing SQL query: {} with verification_id: {}", userSql, verificationId);
         Map<String, Object> userStats = jdbcTemplate.queryForMap(userSql, verificationId);
 
-        // Fetch all owned items
         String itemsSql = "SELECT si.itemNumber, s.itemName, s.category, si.isEquipped " +
                           "FROM UserItems si JOIN Shop s ON si.itemNumber = s.itemNumber " +
                           "WHERE si.verification_id = ?";
         logger.info("Executing SQL query: {} with verification_id: {}", itemsSql, verificationId);
         List<Map<String, Object>> items = jdbcTemplate.queryForList(itemsSql, verificationId);
 
-        // Separate equipped items
         Map<String, Object> equippedItems = new HashMap<>();
         List<Map<String, Object>> ownedItems = new ArrayList<>();
         
@@ -51,7 +48,6 @@ public Map<String, Object> getStats(String verificationId) {
             ownedItems.add(item);
         }
 
-        // Add items and equipped items to userStats
         userStats.put("items", ownedItems);
         userStats.put("equippedItems", equippedItems);
 

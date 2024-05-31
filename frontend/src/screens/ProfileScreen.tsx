@@ -53,8 +53,8 @@ const ProfileScreen = ({ verification_id, changeScreen }) => {
         <View style={styles.statItem}>
           <FontAwesome5 name="shoe-prints" size={24} color="#44C781" style={styles.icon} />
           <View style={styles.statTextContainer}>
-            <Text style={styles.statName}>Walked km</Text>
-            <Text style={styles.statValue}>{userData.allrout} km</Text>
+            <Text style={styles.statName}>Walked meter</Text>
+            <Text style={styles.statValue}>{userData.allrout} meter</Text>
           </View>
         </View>
         <View style={styles.statItem}>

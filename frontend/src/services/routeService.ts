@@ -96,14 +96,20 @@ const getCurrentLocationWithPlaceId = async () => {
 
 // Funktion zum Generieren zufälliger Koordinaten innerhalb eines Radius
 const generateRandomCoords = (originCoords, radius) => {
+  // Zufällige Entfernung 
   const randomDistance = Math.random() * radius;
+  // Zufälliger Winkel in Bogenmaß da 2*PI = 360°
   const randomAngle = Math.random() * 2 * Math.PI;
+  // 1 Breitengrad = 111.32 km. Cosinus für die Breitenkoordinate
   const deltaLat = randomDistance * Math.cos(randomAngle) / 111.32; 
+  // Sinus für die Längenkoordinate. Längengrad ist abhängig von dem Breitengrad,
   const deltaLng = randomDistance * Math.sin(randomAngle) / (111.32 * Math.cos(originCoords.latitude * Math.PI / 180)); 
+  // Neue Koordinaten berechnen
   const randomCoords = {
       latitude: originCoords.latitude + deltaLat,
       longitude: originCoords.longitude + deltaLng,
   };
+  // Rückgabe der zufälligen Koordinaten
   return randomCoords;
 };
 
