@@ -68,15 +68,6 @@ public class DbShopService {
                 return null;
             }
     
-            String getUserSql = "SELECT currCoins FROM Users WHERE verification_id = ?";
-            Map<String, Object> user = jdbcTemplate.queryForMap(getUserSql, verificationId);
-            int currCoins = (int) user.get("currCoins");
-    
-            if (currCoins < price) {
-                logger.error("Insufficient coins");
-                return null;
-            }
-    
             String checkOwnershipSql = "SELECT COUNT(*) FROM UserItems WHERE verification_id = ? AND itemNumber = ?";
             @SuppressWarnings("deprecation")
             int ownershipCount = jdbcTemplate.queryForObject(checkOwnershipSql, new Object[]{verificationId, itemNumber}, Integer.class);
@@ -87,6 +78,15 @@ public class DbShopService {
             
             String updateUserSql = "UPDATE UserItems SET isequipped = true WHERE verification_id = ? AND itemNumber = ?";
             jdbcTemplate.update(updateUserSql, verificationId, itemNumber);
+                return null;
+            }
+
+            String getUserSql = "SELECT currCoins FROM Users WHERE verification_id = ?";
+            Map<String, Object> user = jdbcTemplate.queryForMap(getUserSql, verificationId);
+            int currCoins = (int) user.get("currCoins");
+    
+            if (currCoins < price) {
+                logger.error("Insufficient coins");
                 return null;
             }
     

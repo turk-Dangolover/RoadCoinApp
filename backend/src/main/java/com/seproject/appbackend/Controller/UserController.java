@@ -99,6 +99,10 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@RequestBody Map<String, String> request) {
         String verificationId = request.get("verification_id");
         try {
+            // Delete foreign key constraints
+            String deleteItemsSql = "DELETE FROM UserItems WHERE verification_id = ?";
+            jdbcTemplate.update(deleteItemsSql, verificationId);
+            // Delete user
             String sql = "DELETE FROM Users WHERE verification_id = ?";
             jdbcTemplate.update(sql, verificationId);
             return ResponseEntity.ok("User deleted successfully");
