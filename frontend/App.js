@@ -55,7 +55,7 @@ export default function App() {
       case 'Account':
         return <AccountScreen changeScreen={changeScreen} handleSignOut={handleSignOut} />;
       case 'DelScreen':
-        return <DelScreen changeScreen={changeScreen} verification_id={verification_id} />;
+        return <DelScreen changeScreen={changeScreen} verification_id={verification_id} handleSignOut={handleSignOut}/>;
       case 'ChangePassword':
         return <ChangePasswordScreen verification_id={verification_id} changeScreen={changeScreen} />;
       case 'ChangeEmail':

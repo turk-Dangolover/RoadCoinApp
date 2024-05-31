@@ -2,9 +2,10 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 
-const DelScreen = ({ changeScreen, verification_id }) => {
+const DelScreen = ({ changeScreen, verification_id, handleSignOut }) => {
   const handleDeleteAccount = async () => {
     try {
+      handleSignOut();
       const response = await fetch(`${process.env.SERVER_IP1}/delete/user`, {
         method: 'POST',
         headers: {
@@ -27,7 +28,7 @@ const DelScreen = ({ changeScreen, verification_id }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => changeScreen('Account')}>
+      <TouchableOpacity style={styles.backButton}>
         <FontAwesome5 name="arrow-left" size={24} color="#000" />
       </TouchableOpacity>
       <Text style={styles.title}>Delete Account</Text>
