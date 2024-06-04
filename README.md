@@ -9,7 +9,7 @@ Dieses Projekt verwendet die folgenden Bibliotheken und deren Lizenzen:
 
 # Datenbankstruktur für RodeCoin
 
-Dieses Projekt verwendet eine PostgreSQL-Datenbank namens "RodeCoin". Die folgenden SQL-Abfragen erstellen die notwendigen Tabellen und Constraints für das System.
+Die folgenden SQL-Abfragen erstellen die notwendigen Tabellen und Constraints für das System.
 
 ## Tabellenstruktur
 Es benötigt eine Datenbank "RodeCoin".
